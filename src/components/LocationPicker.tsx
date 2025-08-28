@@ -65,58 +65,88 @@ export default function LocationPicker({ value, onChange, className = '', placeh
     setIsLoadingLocation(true);
     
     try {
-      // 优先使用浏览器GPS定位
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const { latitude, longitude } = position.coords;
-            
-            try {
-              // 使用高德地图逆地理编码
-              const result = await reverseGeocode(longitude, latitude);
-              
-              if (result.success && result.data) {
-                const address = result.data.formatted_address;
-                setInputValue(address);
-                onChange(address);
-                
-                // 添加到建议列表
-                const locationSuggestion: LocationSuggestion = {
-                  id: 'current',
-                  name: '当前位置',
-                  address: address,
-                  latitude,
-                  longitude
-                };
-                setSuggestions([locationSuggestion]);
-              } else {
-                throw new Error(result.error || '位置解析失败');
-              }
-            } catch (error) {
-              console.error('逆地理编码失败:', error);
-              // 降级处理：显示坐标
-              const fallbackAddress = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
-              setInputValue(fallbackAddress);
-              onChange(fallbackAddress);
-            } finally {
-              setIsLoadingLocation(false);
-            }
-          },
-          async (error) => {
-            console.log('GPS定位失败，尝试IP定位:', error.message);
-            // GPS定位失败，使用IP定位
-            await fallbackToIpLocation();
-          },
-          {
-            enableHighAccuracy: true,
-            timeout: 8000,
-            maximumAge: 300000
-          }
-        );
-      } else {
-        // 浏览器不支持GPS，使用IP定位
+      // Safari兼容性优化
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      const isSecureContext = location.protocol === 'https:' || location.hostname === 'localhost';
+      
+      // 检查地理位置API支持
+      if (!navigator.geolocation) {
+        console.log('浏览器不支持地理位置，使用IP定位');
         await fallbackToIpLocation();
+        return;
       }
+      
+      // Safari在非HTTPS环境下的处理
+      if (isSafari && !isSecureContext) {
+        console.log('Safari需要HTTPS环境，使用IP定位');
+        await fallbackToIpLocation();
+        return;
+      }
+      
+      // Safari优化的配置选项
+      const geoOptions = {
+        enableHighAccuracy: !isSafari, // Safari上禁用高精度以提高成功率
+        timeout: isSafari ? 15000 : 8000, // Safari需要更长超时
+        maximumAge: isSafari ? 300000 : 600000 // Safari使用较短缓存时间
+      };
+      
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          
+          try {
+            // 使用高德地图逆地理编码
+            const result = await reverseGeocode(longitude, latitude);
+            
+            if (result.success && result.data) {
+              const address = result.data.formatted_address;
+              setInputValue(address);
+              onChange(address);
+              
+              // 添加到建议列表
+              const locationSuggestion: LocationSuggestion = {
+                id: 'current',
+                name: '当前位置',
+                address: address,
+                latitude,
+                longitude
+              };
+              setSuggestions([locationSuggestion]);
+            } else {
+              throw new Error(result.error || '位置解析失败');
+            }
+          } catch (error) {
+            console.error('逆地理编码失败:', error);
+            // 降级处理：显示坐标
+            const fallbackAddress = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+            setInputValue(fallbackAddress);
+            onChange(fallbackAddress);
+          } finally {
+            setIsLoadingLocation(false);
+          }
+        },
+        async (error) => {
+          // Safari优化的错误处理
+          let errorMsg = `GPS定位失败 (${error.code})`;
+          if (isSafari) {
+            switch(error.code) {
+              case error.PERMISSION_DENIED:
+                errorMsg += ' - Safari地理位置权限被拒绝';
+                break;
+              case error.POSITION_UNAVAILABLE:
+                errorMsg += ' - 位置服务不可用';
+                break;
+              case error.TIMEOUT:
+                errorMsg += ' - Safari定位超时';
+                break;
+            }
+          }
+          console.log(errorMsg + '，尝试IP定位');
+          // GPS定位失败，使用IP定位
+          await fallbackToIpLocation();
+        },
+        geoOptions
+      );
     } catch (error) {
       console.error('定位失败:', error);
       setIsLoadingLocation(false);

@@ -207,54 +207,69 @@ export default function Nav() {
         return;
       }
 
-      // 检查权限状态（如果浏览器支持）
-      if ('permissions' in navigator) {
+      // Safari兼容性优化：检测Safari浏览器
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      const isSecureContext = location.protocol === 'https:' || location.hostname === 'localhost';
+      
+      // Safari在非HTTPS环境下会静默拒绝地理位置请求
+      if (isSafari && !isSecureContext) {
+        reject(new Error('Safari需要HTTPS环境才能使用地理位置服务'));
+        return;
+      }
+
+      // 改进的权限检查：对Safari更宽容
+      if ('permissions' in navigator && !isSafari) {
         navigator.permissions.query({ name: 'geolocation' }).then((result) => {
           if (result.state === 'denied') {
             reject(new Error('地理位置权限被拒绝'));
             return;
           }
-
-          // 权限允许或询问状态，继续获取位置
           requestPosition();
         }).catch(() => {
-          // 权限API不支持，直接尝试获取位置
+          // 权限API失败，直接尝试获取位置
           requestPosition();
         });
       } else {
-        // 浏览器不支持权限API，直接尝试获取位置
+        // Safari或不支持权限API的浏览器，直接请求位置
         requestPosition();
       }
 
       function requestPosition() {
+        // Safari优化的配置选项
+        const options = {
+          enableHighAccuracy: true,
+          timeout: isSafari ? 20000 : 10000, // Safari需要更长超时
+          maximumAge: isSafari ? 300000 : 600000 // Safari缓存时间稍短
+        };
+
         navigator.geolocation.getCurrentPosition(
           (position) => {
             resolve(position);
           },
           (error) => {
-            // 根据错误类型提供更详细的错误信息
-            let errorMessage = '获取位置失败';
-            switch (error.code) {
+            // Safari优化：提供更详细的错误信息和解决建议
+            let errorMsg = '';
+            switch(error.code) {
               case error.PERMISSION_DENIED:
-                errorMessage = '用户拒绝了地理位置权限请求';
+                errorMsg = isSafari 
+                  ? 'Safari地理位置权限被拒绝。请在Safari设置中允许此网站访问位置信息。'
+                  : '地理位置权限被拒绝';
                 break;
               case error.POSITION_UNAVAILABLE:
-                errorMessage = '位置信息不可用';
+                errorMsg = '位置信息不可用，请检查设备定位服务是否开启';
                 break;
               case error.TIMEOUT:
-                errorMessage = '获取位置超时';
+                errorMsg = isSafari 
+                  ? 'Safari定位请求超时，请重试或检查网络连接'
+                  : '定位请求超时';
                 break;
               default:
-                errorMessage = `获取位置失败: ${error.message}`;
+                errorMsg = `定位服务异常 (代码: ${error.code})`;
                 break;
             }
-            reject(new Error(errorMessage));
+            reject(new Error(errorMsg));
           },
-          {
-            timeout: 15000, // 增加超时时间到15秒
-            enableHighAccuracy: false,
-            maximumAge: 300000 // 5分钟内的缓存位置可接受
-          }
+          options
         );
       }
     });
