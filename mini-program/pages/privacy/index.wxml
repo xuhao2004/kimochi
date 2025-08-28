@@ -1,0 +1,98 @@
+<scroll-view scroll-y>
+  <view class="apple-page safe-bottom">
+    <view class="apple-card">
+      <view class="apple-title">隐私政策</view>
+      <view class="apple-p apple-muted" style="margin-top:8rpx;">更新日期：2025-08-14　生效日期：2025-08-14</view>
+
+      <view class="apple-section">
+        <view class="apple-p">本隐私政策适用于“心理工具平台”小程序及关联的网页服务（统称“本服务”）。我们重视您的隐私与数据安全，仅在提供核心功能所必需的范围内处理个人信息，并尽量以最简方式收集与使用。</view>
+      </view>
+
+      <view class="apple-section">
+        <view class="apple-h2">一、我们收集的信息</view>
+        <view class="apple-p">我们仅在提供登录认证、心理测评、消息/留言等功能所必需时收集以下信息：</view>
+        <view class="apple-list">
+          <view class="apple-li apple-p"><text class="bold">1）账号与标识信息：</text>微信登录凭证（code，用于换取 OpenID/UnionID）、头像与昵称（当您自愿选择/授权时）。</view>
+          <view class="apple-li apple-p"><text class="bold">2）联系信息（可选）：</text>当您自愿填写时，我们会保存邮箱、手机号，用于登录、找回密码与重要通知。</view>
+          <view class="apple-li apple-p"><text class="bold">3）个人资料（可选）：</text>姓名、性别、生日、院系/专业、班级、工号/学号、办公信息等，仅用于完善资料与管理统计。</view>
+          <view class="apple-li apple-p"><text class="bold">4）测评数据：</text>您在本服务中完成的心理测评答题、结果与分析，仅用于向您提供测评服务与后续查看历史。</view>
+          <view class="apple-li apple-p"><text class="bold">5）互动数据（可选）：</text>好友申请与回执、消息通信、留言/评论内容，用于实现社交与留言墙等功能。</view>
+          <view class="apple-li apple-p"><text class="bold">6）日志信息：</text>为保障服务稳定与安全，我们可能记录必要的设备信息、网络请求、错误日志（不含与功能无关的敏感信息）。</view>
+        </view>
+        <view class="apple-p apple-muted">说明：我们不采集通讯录、地理位置、录音/蓝牙等高敏感权限数据；如未来确有必要，会在获得您的明确同意后再行启用，并在本页公示。</view>
+      </view>
+
+      <view class="apple-section">
+        <view class="apple-h2">二、我们如何使用信息</view>
+        <view class="apple-list">
+          <view class="apple-li apple-p">1）用于身份认证、会话保持与安全审计（含异常检测与必要的风控）。</view>
+          <view class="apple-li apple-p">2）提供心理测评、结果展示、历史查询等核心功能。</view>
+          <view class="apple-li apple-p">3）在您自愿的前提下，用于找回密码、账号变更申请、审核通知与系统消息。</view>
+          <view class="apple-li apple-p">4）基于匿名/去标识化的聚合统计，用于改进服务质量与性能。</view>
+          <view class="apple-li apple-p">5）依法配合监管审计与合规要求。</view>
+        </view>
+      </view>
+
+      <view class="apple-section">
+        <view class="apple-h2">三、对外共享与委托处理</view>
+        <view class="apple-p">我们不会出售您的个人信息。仅在下列情形下可能共享或委托处理：</view>
+        <view class="apple-list">
+          <view class="apple-li apple-p">1）<text class="bold">必要的基础能力与供应商：</text>邮件服务（用于发送验证码/通知）、短信服务（如接入）、运维与网络加速/隧道（用于域名访问与可用性保障）。我们会与服务商签署严格的数据保护协议，并尽量只传递完成该项服务所必需的数据。</view>
+          <view class="apple-li apple-p">2）<text class="bold">法定情形：</text>依据法律法规或行政/司法机关要求提供。</view>
+          <view class="apple-li apple-p">3）<text class="bold">经您明确同意或主动选择的共享：</text>例如向好友发起申请时对方可见您的基本资料。</view>
+        </view>
+      </view>
+
+      <view class="apple-section">
+        <view class="apple-h2">四、设备权限与本地存储</view>
+        <view class="apple-list">
+          <view class="apple-li apple-p">1）相机权限：用于“扫一扫”以完成 PC 扫码登录确认。仅在您主动使用该功能时触发。</view>
+          <view class="apple-li apple-p">2）相册/头像选择：当您主动更换头像时由微信提供头像选择能力。</view>
+          <view class="apple-li apple-p">3）本地存储：我们会在小程序本地安全保存令牌（token）以维持登录状态；您可在设置中清除。</view>
+        </view>
+      </view>
+
+      <view class="apple-section">
+        <view class="apple-h2">五、信息保存期限与安全</view>
+        <view class="apple-list">
+          <view class="apple-li apple-p">1）我们在实现目的所必需期间保存您的信息，超期将删除或匿名化处理，法律法规另有规定的除外。</view>
+          <view class="apple-li apple-p">2）我们采用访问控制、最小化授权、传输加密、日志审计等措施保护数据安全；但受限于技术与网络环境，无法保证绝对安全。</view>
+        </view>
+      </view>
+
+      <view class="apple-section">
+        <view class="apple-h2">六、您的权利</view>
+        <view class="apple-list">
+          <view class="apple-li apple-p">1）查询、复制、导出：您可以查看测评记录与个人资料；如需导出，请联系管理员。</view>
+          <view class="apple-li apple-p">2）更正与补充：您可在“个人资料”中修改可编辑的信息；涉及账号（邮箱/手机号）变更将进入管理员审核流程。</view>
+          <view class="apple-li apple-p">3）删除与注销：您可联系管理员申请删除部分信息或注销账号（在不影响合规留存的前提下）。</view>
+          <view class="apple-li apple-p">4）撤回同意：对于基于同意处理的场景，您可随时撤回，但可能影响相关功能的可用性。</view>
+        </view>
+      </view>
+
+      <view class="apple-section">
+        <view class="apple-h2">七、未成年人保护</view>
+        <view class="apple-p">如您为未成年人，请在监护人指导下使用本服务。我们将依法保护未成年人个人信息。</view>
+      </view>
+
+      <view class="apple-section">
+        <view class="apple-h2">八、政策更新</view>
+        <view class="apple-p">本政策可能因功能与合规要求调整而更新。重要变更将通过页面公告/系统消息提示，更新后继续使用即表示您同意受其约束。</view>
+      </view>
+
+      <view class="apple-section">
+        <view class="apple-h2">九、联系我们</view>
+        <view class="apple-p">如您对本政策或个人信息保护有任何问题、建议或投诉，请通过以下方式联系我们：</view>
+        <view class="apple-list">
+          <view class="apple-li apple-p">邮箱：kimochi2025@qq.com</view>
+          <view class="apple-li apple-p">帮助页：<text class="link" selectable>https://app.kimochi.space/login-help</text></view>
+        </view>
+      </view>
+
+      <view class="apple-section">
+        <view class="apple-h2">十、第三方 SDK 清单</view>
+        <view class="apple-p">当前小程序仅使用微信官方基础能力（登录、头像、扫码等），未接入其他第三方 SDK。如未来接入，将在本页更新说明。</view>
+      </view>
+    </view>
+  </view>
+</scroll-view>

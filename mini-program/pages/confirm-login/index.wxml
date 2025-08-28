@@ -1,0 +1,20 @@
+<view class="apple-page safe-bottom">
+  <view class="apple-card">
+    <view class="apple-title">确认登录</view>
+    <view class="apple-p apple-muted" style="margin-top:6rpx;">请输入网页端显示的登录码（nonce），或通过首页“扫一扫填码登录”。</view>
+
+    <view class="apple-field">
+      <view class="apple-label">登录码/绑定码</view>
+      <input class="apple-input" placeholder="请输入登录码或绑定码" placeholder-class="apple-placeholder" cursor-spacing="28" adjust-position="true" value="{{nonce}}" bindinput="onInput" />
+    </view>
+
+    <button class="apple-button apple-button-primary" bindtap="onConfirm">确认登录</button>
+    <button class="apple-button" bindtap="onConfirmBind" style="margin-top:12rpx;">确认绑定网站账号</button>
+
+    
+
+    <view style="margin-top:24rpx; font-size:24rpx; word-break:break-all;">
+      <text>{{log}}</text>
+    </view>
+  </view>
+</view>

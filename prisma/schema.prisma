@@ -1,0 +1,507 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                        String                 @id @default(cuid())
+  email                     String?                @unique
+  studentId                 String?                @unique
+  teacherId                 String?                @unique
+  passwordHash              String
+  name                      String
+  nickname                  String?
+  zodiac                    String?
+  gender                    String?
+  birthDate                 DateTime?
+  className                 String?
+  accountType               String                 @default("self")
+  isAdmin                   Boolean                @default(false)
+  isSuperAdmin              Boolean                @default(false)
+  lastActiveAt              DateTime               @default(now())
+  profileImage              String?
+  hasUpdatedProfile         Boolean                @default(false)
+  genderModified            Boolean                @default(false)
+  nicknameModified          Boolean                @default(false)
+  createdAt                 DateTime               @default(now())
+  updatedAt                 DateTime               @updatedAt
+  tokenVersion              Int                    @default(0)
+  lastLatitude              Float?
+  lastLongitude             Float?
+  lastLocationName          String?
+  lastWeatherSummary        String?
+  lastWeatherTempC          Float?
+  lastWeatherUpdatedAt      DateTime?
+  lastDailyMessage          String?
+  lastDailyAt               DateTime?
+  createdByType             String?
+  personalEmail             String?
+  securityEmail             String?
+  securityEmailExempt       Boolean                @default(false)
+  college                   String?
+  major                     String?
+  office                    String?
+  phone                     String?
+  contactPhone              String?
+  wechatOpenId              String?                @unique
+  wechatUnionId             String?                @unique
+  wechatBoundAt             DateTime?
+  weappOpenId               String?                @unique
+  weappUnionId              String?                @unique
+  weappBoundAt              DateTime?
+  reviewedAccountChanges    AccountChangeRequest[] @relation("AccountChangeReviewer")
+  accountChangeRequests     AccountChangeRequest[] @relation("AccountChangeRequests")
+  assessments               Assessment[]
+  receivedAssessmentInvites AssessmentInvite[]     @relation("AssessmentInviteInvitee")
+  sentAssessmentInvites     AssessmentInvite[]     @relation("AssessmentInviteInviter")
+  sentMessages              ChatMessage[]
+  createdChatRooms          ChatRoom[]             @relation("CreatedChatRooms")
+  chatParticipations        ChatRoomParticipant[]
+  friendGroups              FriendGroup[]
+  sentFriendRequests        Friendship[]           @relation("UserFriendships")
+  receivedFriendRequests    Friendship[]           @relation("FriendFriendships")
+  posts                     Post[]
+  postComments              PostComment[]
+  visiblePosts              PostVisibility[]       @relation("VisibleToFriends")
+  qrLoginSessions           QrLoginSession[]
+  reviewedReports           Report[]               @relation("ReportReviewer")
+  reportedPosts             Report[]               @relation("ReportReporter")
+  userActions               UserAction[]
+  sentUserMessages          UserMessage[]          @relation("SentMessages")
+  receivedUserMessages      UserMessage[]          @relation("ReceivedMessages")
+  verificationCodes         VerificationCode[]
+  sessions                  UserSession[]
+}
+
+model UserAction {
+  id         String   @id @default(cuid())
+  userId     String
+  actionType String
+  metadata   String?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, actionType])
+  @@index([userId, createdAt])
+}
+
+model Assessment {
+  id                 String             @id @default(cuid())
+  userId             String
+  type               String
+  status             String             @default("in_progress")
+  startedAt          DateTime           @default(now())
+  completedAt        DateTime?
+  rawAnswers         String?
+  analysisResult     String?
+  psychologicalTags  String?
+  overallScore       Float?
+  riskLevel          String?
+  recommendations    String?
+  completionTime     Int?
+  isSerious          Boolean?
+  attentionCheckPass Boolean?
+  currentPage        Int?
+  pausedAt           DateTime?
+  elapsedTime        Int                @default(0)
+  deletedByUser      Boolean            @default(false)
+  deletedAt          DateTime?
+  needsAttention     Boolean            @default(false)
+  adminNotified      Boolean            @default(false)
+  adminNotes         String?
+  personalityType    String?
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers            AssessmentAnswer[]
+  invite             AssessmentInvite?  @relation("AssessmentToInvite")
+
+  @@index([userId, type])
+  @@index([riskLevel])
+  @@index([needsAttention, adminNotified])
+}
+
+model AssessmentAnswer {
+  id           String     @id @default(cuid())
+  assessmentId String
+  questionId   String
+  answer       String
+  responseTime Int?
+  createdAt    DateTime   @default(now())
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@index([assessmentId])
+}
+
+model AdminMessage {
+  id          String    @id @default(cuid())
+  type        String
+  title       String
+  content     String
+  userId      String?
+  isRead      Boolean   @default(false)
+  isProcessed Boolean   @default(false)
+  priority    String    @default("normal")
+  createdAt   DateTime  @default(now())
+  readAt      DateTime?
+  processedAt DateTime?
+
+  @@index([isRead, isProcessed])
+  @@index([createdAt])
+}
+
+model Friendship {
+  id        String       @id @default(cuid())
+  userId    String
+  friendId  String
+  status    String       @default("pending")
+  groupId   String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  user      User         @relation("UserFriendships", fields: [userId], references: [id], onDelete: Cascade)
+  friend    User         @relation("FriendFriendships", fields: [friendId], references: [id], onDelete: Cascade)
+  group     FriendGroup? @relation(fields: [groupId], references: [id])
+
+  @@unique([userId, friendId])
+  @@index([userId, status])
+  @@index([friendId, status])
+  @@index([groupId])
+}
+
+model FriendGroup {
+  id           String           @id @default(cuid())
+  userId       String
+  name         String
+  description  String?
+  color        String?
+  order        Int              @default(0)
+  isDefault    Boolean          @default(false)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  friendships  Friendship[]
+  visiblePosts PostVisibility[]
+
+  @@index([userId, order])
+  @@index([userId, isDefault])
+}
+
+model ChatRoom {
+  id                String                @id @default(cuid())
+  name              String?
+  type              String                @default("private")
+  createdBy         String?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  lastMessageAt     DateTime?
+  assessmentInvites AssessmentInvite[]    @relation("ChatRoomToAssessmentInvites")
+  messages          ChatMessage[]
+  creator           User?                 @relation("CreatedChatRooms", fields: [createdBy], references: [id])
+  participants      ChatRoomParticipant[]
+
+  @@index([type])
+  @@index([lastMessageAt])
+}
+
+model ChatRoomParticipant {
+  id         String   @id @default(cuid())
+  chatRoomId String
+  userId     String
+  joinedAt   DateTime @default(now())
+  lastReadAt DateTime @default(now())
+  isActive   Boolean  @default(true)
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([chatRoomId, userId])
+  @@index([userId])
+  @@index([chatRoomId, isActive])
+}
+
+model ChatMessage {
+  id               String            @id @default(cuid())
+  chatRoomId       String
+  senderId         String
+  content          String
+  messageType      String            @default("text")
+  replyToId        String?
+  isDeleted        Boolean           @default(false)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  assessmentInvite AssessmentInvite? @relation("MessageToAssessmentInvite")
+  chatRoom         ChatRoom          @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+  sender           User              @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  replyTo          ChatMessage?      @relation("MessageReplies", fields: [replyToId], references: [id])
+  replies          ChatMessage[]     @relation("MessageReplies")
+
+  @@index([chatRoomId, createdAt])
+  @@index([senderId])
+}
+
+model AssessmentInvite {
+  id           String      @id @default(cuid())
+  chatRoomId   String
+  messageId    String      @unique
+  inviterId    String
+  inviteeId    String
+  type         String
+  status       String      @default("pending")
+  assessmentId String?     @unique
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  assessment   Assessment? @relation("AssessmentToInvite", fields: [assessmentId], references: [id])
+  invitee      User        @relation("AssessmentInviteInvitee", fields: [inviteeId], references: [id], onDelete: Cascade)
+  inviter      User        @relation("AssessmentInviteInviter", fields: [inviterId], references: [id], onDelete: Cascade)
+  message      ChatMessage @relation("MessageToAssessmentInvite", fields: [messageId], references: [id], onDelete: Cascade)
+  chatRoom     ChatRoom    @relation("ChatRoomToAssessmentInvites", fields: [chatRoomId], references: [id], onDelete: Cascade)
+
+  @@index([chatRoomId, status, createdAt])
+  @@index([inviterId])
+  @@index([inviteeId])
+}
+
+model SystemStats {
+  id                  String   @id @default(cuid())
+  totalVisits         Int      @default(0)
+  totalWeatherQueries Int      @default(0)
+  totalDailyMessages  Int      @default(0)
+  totalUsers          Int      @default(0)
+  onlineUsers         Int      @default(0)
+  lastUpdated         DateTime @default(now()) @updatedAt
+
+  @@map("system_stats")
+}
+
+model UserSession {
+  id           String   @id @default(cuid())
+  userId       String
+  sessionToken String   @unique
+  ipAddress    String?
+  userAgent    String?
+  lastActiveAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([lastActiveAt])
+  @@map("user_sessions")
+}
+
+model Post {
+  id                 String           @id @default(cuid())
+  userId             String
+  title              String
+  content            String
+  visibility         String
+  isAnonymous        Boolean          @default(false)
+  isPinned           Boolean          @default(false)
+  pinnedBy           String?
+  pinnedAt           DateTime?
+  tags               String?
+  location           String?
+  mood               String?
+  isDeleted          Boolean          @default(false)
+  deletedBy          String?
+  deletedAt          DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments           PostComment[]
+  visibilitySettings PostVisibility[]
+  reports            Report[]
+
+  @@index([userId, createdAt])
+  @@index([visibility, isDeleted, createdAt])
+  @@index([isPinned, isDeleted, createdAt])
+}
+
+model PostComment {
+  id          String        @id @default(cuid())
+  postId      String
+  userId      String
+  content     String
+  isAnonymous Boolean       @default(false)
+  isPinned    Boolean       @default(false)
+  pinnedBy    String?
+  pinnedAt    DateTime?
+  replyToId   String?
+  isDeleted   Boolean       @default(false)
+  deletedBy   String?
+  deletedAt   DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  post        Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replyTo     PostComment?  @relation("CommentReplies", fields: [replyToId], references: [id])
+  replies     PostComment[] @relation("CommentReplies")
+
+  @@index([postId, isPinned, isDeleted, createdAt])
+  @@index([userId, createdAt])
+}
+
+model UserMessage {
+  id               String    @id @default(cuid())
+  senderId         String?
+  receiverId       String
+  type             String
+  title            String
+  content          String
+  relatedPostId    String?
+  relatedCommentId String?
+  isRead           Boolean   @default(false)
+  priority         String    @default("normal")
+  createdAt        DateTime  @default(now())
+  readAt           DateTime?
+  sender           User?     @relation("SentMessages", fields: [senderId], references: [id])
+  receiver         User      @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([receiverId, isRead, createdAt])
+  @@index([senderId, createdAt])
+  @@index([type, createdAt])
+}
+
+model PostVisibility {
+  id        String       @id @default(cuid())
+  postId    String
+  friendId  String?
+  groupId   String?
+  createdAt DateTime     @default(now())
+  post      Post         @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  friend    User?        @relation("VisibleToFriends", fields: [friendId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  group     FriendGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([postId])
+  @@index([friendId])
+  @@index([groupId])
+}
+
+model Report {
+  id          String    @id @default(cuid())
+  postId      String
+  reporterId  String
+  reason      String
+  description String?
+  status      String    @default("pending")
+  reviewerId  String?
+  reviewNote  String?
+  reviewedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  reviewer    User?     @relation("ReportReviewer", fields: [reviewerId], references: [id])
+  reporter    User      @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  post        Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([reporterId])
+  @@index([reviewerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ViolationReason {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    String
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category, isActive])
+  @@index([order])
+}
+
+model AccountChangeRequest {
+  id               String    @id @default(cuid())
+  userId           String
+  changeType       String
+  currentValue     String
+  newValue         String
+  verificationCode String?
+  verified         Boolean   @default(false)
+  reason           String?
+  status           String    @default("pending")
+  reviewerId       String?
+  reviewReason     String?
+  processedAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  reviewer         User?     @relation("AccountChangeReviewer", fields: [reviewerId], references: [id])
+  user             User      @relation("AccountChangeRequests", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([changeType])
+  @@index([createdAt])
+}
+
+/// 通用验证码存储（邮箱/短信/微信等用途）
+model VerificationCode {
+  id        String    @id @default(cuid())
+  userId    String?
+  contact   String
+  channel   String
+  purpose   String
+  codeHash  String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User?     @relation(fields: [userId], references: [id])
+
+  @@index([contact, purpose])
+  @@index([expiresAt])
+}
+
+/// PC 扫码登录会话（骨架）
+model QrLoginSession {
+  id        String   @id @default(cuid())
+  nonce     String   @unique
+  status    String   @default("pending")
+  userId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  expiresAt DateTime
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([status, expiresAt])
+}
+
+/// 密保邮箱变更申请（用于邮箱注册用户的审批流程，普通用户双验证码直改不入库）
+model SecurityEmailChangeRequest {
+  id           String    @id @default(cuid())
+  userId       String
+  oldEmail     String?
+  newEmail     String
+  oldVerified  Boolean   @default(false)
+  newVerified  Boolean   @default(false)
+  status       String    @default("pending")
+  reviewerId   String?
+  reviewReason String?
+  processedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+/// 密保邮箱豁免申请（超管审批，审批通过后为用户设置 securityEmailExempt=true）
+model SecurityEmailExemptRequest {
+  id           String    @id @default(cuid())
+  userId       String
+  reason       String?
+  status       String    @default("pending")
+  reviewerId   String?
+  reviewReason String?
+  processedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}

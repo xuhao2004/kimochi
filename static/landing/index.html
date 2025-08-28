@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kimochi 心晴 - 心理健康平台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .container { max-width: 800px; padding: 2rem; text-align: center; }
+        .logo { font-size: 3rem; color: white; margin-bottom: 1rem; font-weight: 300; }
+        .subtitle { color: rgba(255,255,255,0.9); font-size: 1.2rem; margin-bottom: 3rem; }
+        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .card { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 12px; padding: 2rem 1rem; text-decoration: none; color: white; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.2); }
+        .card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.2); }
+        .card-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+        .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .card-desc { font-size: 0.9rem; opacity: 0.8; }
+        .footer { color: rgba(255,255,255,0.7); font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="logo">Kimochi 心晴</h1>
+        <p class="subtitle">心理健康与情感支持平台</p>
+        
+        <div class="cards">
+            <a href="http://dev.kimochi.space" class="card">
+                <div class="card-icon">🛠️</div>
+                <div class="card-title">开发环境</div>
+                <div class="card-desc">开发测试版本<br>端口: 3001</div>
+            </a>
+            
+            <a href="http://test.kimochi.space" class="card">
+                <div class="card-icon">🧪</div>
+                <div class="card-title">测试环境</div>
+                <div class="card-desc">功能测试版本<br>端口: 3003</div>
+            </a>
+            
+            <a href="http://app.kimochi.space" class="card">
+                <div class="card-icon">🚀</div>
+                <div class="card-title">生产环境</div>
+                <div class="card-desc">正式发布版本<br>端口: 3000</div>
+            </a>
+            
+            <a href="#" class="card" onclick="showInfo()">
+                <div class="card-icon">ℹ️</div>
+                <div class="card-title">系统信息</div>
+                <div class="card-desc">版本与状态<br>端口: 3002</div>
+            </a>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 Kimochi 心晴项目 | 一键部署系统</p>
+        </div>
+    </div>
+    
+    <script>
+        function showInfo(){
+            alert('Kimochi 心晴 v1.0.0\n\n开发: dev.kimochi.space:3001\n测试: test.kimochi.space:3003\n生产: app.kimochi.space:3000\n落地页: kimochi.space:3002\n\n使用 ./scripts/kimochi.sh 进行一键管理');
+        }
+    </script>
+</body>
+</html>

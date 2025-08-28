@@ -1,0 +1,188 @@
+<!-- pages/profile/index.wxml -->
+<view class="apple-page safe-bottom">
+  <view class="apple-card">
+    <view class="apple-title">个人资料</view>
+    <view wx:if="{{userTag}}" style="margin-top:8rpx; display:flex; justify-content:center;">
+      <text style="padding:6rpx 16rpx; border-radius:9999rpx; background:#eef2ff; color:#4f46e5; font-size:24rpx;">{{userTag}}</text>
+    </view>
+
+    <button class="apple-button" bindtap="refreshProfile" style="margin-top:12rpx;">刷新资料</button>
+
+    <view wx:if="{{avatarUrl}}" style="margin-top:16rpx; display:flex; justify-content:center;">
+      <image class="avatar-lg" src="{{avatarUrl}}" mode="aspectFill"></image>
+    </view>
+    <view style="display:flex; gap:12rpx; justify-content:center; margin-top:12rpx; flex-wrap:wrap;">
+      <button class="apple-button" bindtap="chooseAndUploadAvatar">从相册选择</button>
+      <button class="apple-button" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">一键获取微信头像（推荐）</button>
+      <button class="apple-button" type="warn" bindtap="resetAvatar">使用默认</button>
+    </view>
+
+    <view class="apple-field">
+      <view class="apple-label">姓名</view>
+      <block wx:if="{{canEdit}}">
+        <input class="apple-input" placeholder="姓名" placeholder-class="apple-placeholder" cursor-spacing="28" adjust-position="true" value="{{form.name}}" bindinput="onInputName" />
+        <view class="apple-p" wx:if="{{pendingNameChangeTo}}" style="color:#b45309;">原：{{form.name}}；新：{{pendingNameChangeTo}}（待审核）</view>
+      </block>
+      <block wx:else>
+        <view class="apple-p">{{(pendingNameChangeTo ? ('原：' + (form.name||'') + '；新：' + pendingNameChangeTo + '（待审核）') : (form.name || '未填写'))}}</view>
+      </block>
+    </view>
+    <view class="apple-field">
+      <view class="apple-label">昵称</view>
+      <block wx:if="{{canEdit}}">
+        <input class="apple-input" placeholder="昵称" placeholder-class="apple-placeholder" value="{{form.nickname}}" bindinput="onInputNickname" />
+      </block>
+      <block wx:else>
+        <view class="apple-p">{{form.nickname || '未填写'}}</view>
+      </block>
+    </view>
+
+    <view class="apple-field">
+      <view class="apple-label">登录邮箱（可选）</view>
+      <block wx:if="{{canEdit}}">
+        <input class="apple-input" placeholder="登录邮箱" placeholder-class="apple-placeholder" cursor-spacing="28" adjust-position="true" value="{{form.email}}" bindinput="onInputEmail" />
+      </block>
+      <block wx:else>
+        <view class="apple-p">{{form.email || '未设置'}}</view>
+      </block>
+    </view>
+
+
+    <view class="apple-field">
+      <view class="apple-label">个人联系邮箱（可选）</view>
+      <block wx:if="{{canEdit}}">
+        <input class="apple-input" placeholder="个人邮箱" placeholder-class="apple-placeholder" cursor-spacing="28" adjust-position="true" value="{{form.personalEmail}}" bindinput="onInputPEmail" />
+      </block>
+      <block wx:else>
+        <view class="apple-p">{{form.personalEmail || '未填写'}}</view>
+      </block>
+    </view>
+
+    <view class="apple-field">
+      <view class="apple-label">密保邮箱（必填）</view>
+      <view wx:if="{{canEdit}}">
+        <view style="display:flex; gap:12rpx; align-items:center;">
+          <input class="apple-input" placeholder="密保邮箱（隐藏显示在个人中心）" placeholder-class="apple-placeholder" cursor-spacing="28" adjust-position="true" value="{{form.securityEmail}}" bindinput="onInputSecurityEmail" />
+          <button class="apple-button" bindtap="sendSecurityEmailCode" disabled="{{sendingSecEmail}}">{{sendingSecEmail?'已发送...':'发送验证码'}}</button>
+        </view>
+        <input class="apple-input" placeholder="验证码" placeholder-class="apple-placeholder" cursor-spacing="28" adjust-position="true" value="{{form.securityEmailCode}}" bindinput="onInputSecurityEmailCode" />
+      </view>
+      <view wx:else>
+        <view class="apple-p">
+          {{ form.securityEmail ? ('已设置：' + (form.securityEmailMasked||'')) : (form.securityEmailExempt ? '密保邮箱：超管特批' : '未设置') }}
+        </view>
+      </view>
+    </view>
+
+    <view class="apple-field">
+      <view class="apple-label">性别</view>
+      <block wx:if="{{canEdit}}">
+        <picker mode="selector" range="{{genderOptions}}" value="{{genderIndex}}" bindchange="onGenderPicker">
+          <view class="apple-input">{{form.gender || '请选择性别'}}</view>
+        </picker>
+      </block>
+      <block wx:else>
+        <view class="apple-p">{{form.gender || '未填写'}}</view>
+      </block>
+    </view>
+
+    <view class="apple-field">
+      <view class="apple-label">生日</view>
+      <block wx:if="{{canEdit}}">
+        <picker mode="date" value="{{form.birthDate}}" end="{{(new Date()).toISOString().slice(0,10)}}" bindchange="onBirthDateChange">
+          <view class="apple-input">{{form.birthDate || '请选择日期'}}</view>
+        </picker>
+      </block>
+      <block wx:else>
+        <view class="apple-p">{{form.birthDate || '未填写'}}</view>
+      </block>
+    </view>
+
+    <view class="apple-field" wx:if="{{isSuperAdmin || accountType==='teacher'}}">
+      <view class="apple-label">办公室</view>
+      <block wx:if="{{canEdit}}">
+        <input class="apple-input" placeholder="办公室" placeholder-class="apple-placeholder" value="{{form.office}}" bindinput="onInputOffice" />
+      </block>
+      <block wx:else>
+        <view class="apple-p">{{form.office || '未填写'}}</view>
+      </block>
+    </view>
+
+    <view class="apple-field">
+      <view class="apple-label">联系电话（可选）</view>
+      <block wx:if="{{canEdit}}">
+        <view style="display:flex; gap:12rpx; align-items:center;">
+          <input class="apple-input" placeholder="联系电话" placeholder-class="apple-placeholder" cursor-spacing="28" adjust-position="true" value="{{form.contactPhone}}" bindinput="onInputCPhone" />
+          <button class="apple-button" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber">读取微信手机号</button>
+        </view>
+      </block>
+      <block wx:else>
+        <view class="apple-p">{{form.contactPhone || '未填写'}}</view>
+      </block>
+    </view>
+
+    <view style="display:flex; gap:12rpx; margin-top:12rpx;">
+      <button class="apple-button" bindtap="toggleEdit">{{canEdit? '取消' : '修改'}}</button>
+      <button class="apple-button apple-button-primary" bindtap="saveProfile" wx:if="{{canEdit}}">保存</button>
+    </view>
+
+    <!-- 开发功能：密保邮箱变更（双验证码） -->
+    <view class="apple-section" wx:if="{{devFeatures}}" style="margin-top:20rpx;">
+      <view class="apple-h2">密保邮箱变更（开发中）</view>
+      <view class="apple-p apple-muted">需要同时验证旧邮箱与新邮箱验证码；邮箱注册用户将进入审批流程。</view>
+      <button class="apple-button" bindtap="toggleChangePanel">{{ changeSecOpen ? '收起' : '展开' }}</button>
+      <view wx:if="{{changeSecOpen}}" style="margin-top:12rpx;">
+        <view wx:if="{{form.securityEmail}}">
+          <view class="apple-label">旧邮箱验证码</view>
+          <view style="display:flex; gap:12rpx; align-items:center;">
+            <button class="apple-button" bindtap="sendOldSecurityEmailCode" disabled="{{changeSec.sendingOld}}">{{changeSec.sendingOld?'已发送...':'发送到旧邮箱'}}</button>
+            <input class="apple-input" placeholder="输入旧邮箱验证码" placeholder-class="apple-placeholder" value="{{changeSec.oldCode}}" bindinput="onInputOldSecurityEmailCode" />
+          </view>
+        </view>
+        <view class="apple-label" style="margin-top:12rpx;">新密保邮箱</view>
+        <input class="apple-input" placeholder="输入新的密保邮箱" placeholder-class="apple-placeholder" value="{{changeSec.newEmail}}" bindinput="onInputNewSecurityEmail" />
+        <view style="display:flex; gap:12rpx; align-items:center; margin-top:8rpx;">
+          <button class="apple-button" bindtap="sendNewSecurityEmailCode" disabled="{{changeSec.sendingNew}}">{{changeSec.sendingNew?'已发送...':'发送到新邮箱'}}</button>
+          <input class="apple-input" placeholder="新邮箱验证码" placeholder-class="apple-placeholder" value="{{changeSec.newCode}}" bindinput="onInputNewSecurityEmailCode" />
+        </view>
+        <button class="apple-button apple-button-primary" style="margin-top:12rpx;" bindtap="submitSecurityEmailChange" disabled="{{changeSec.submitting}}">确认变更</button>
+      </view>
+    </view>
+
+    <!-- 开发功能：密保邮箱豁免申请入口 -->
+    <view class="apple-section" wx:if="{{devFeatures}}" style="margin-top:20rpx;">
+      <view class="apple-h2">密保邮箱豁免</view>
+      <view wx:if="{{!form.securityEmailExempt}}">
+        <input class="apple-input" placeholder="申请理由（可选）" placeholder-class="apple-placeholder" value="{{exemptReason}}" bindinput="onInputExemptReason" />
+        <button class="apple-button" style="margin-top:8rpx;" bindtap="applyExempt" disabled="{{exempt.applying}}">{{exempt.applying?'提交中...':'提交豁免申请'}}</button>
+      </view>
+      <view wx:else class="apple-p">已获得豁免</view>
+      <button class="apple-button" style="margin-top:8rpx;" bindtap="loadExemptRequests">刷新我的申请</button>
+      <view wx:for="{{exempt.list}}" wx:key="id" class="apple-p" style="margin-top:6rpx;">
+        申请 {{index+1}}：{{item.status}} · {{item.createdAt}}
+      </view>
+    </view>
+
+    <view class="apple-section">
+      <view class="apple-h2">微信绑定</view>
+      <view class="apple-p apple-muted">用于账号互通与跨端登录。若未绑定，点击下方按钮完成绑定。</view>
+      <button class="apple-button" bindtap="bindWeapp">绑定微信（小程序）</button>
+      <button class="apple-button apple-button-primary" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber" style="margin-top:12rpx;">一键获取微信手机号并填入联系电话</button>
+      <view wx:if="{{weapp.bound}}" style="margin-top:12rpx; display:flex; gap:12rpx;">
+        <button class="apple-button" type="warn" bindtap="confirmUnbindWeapp">解绑微信</button>
+        <button class="apple-button apple-button-primary" bindtap="rebindWeapp">重新绑定</button>
+      </view>
+
+      <view class="apple-field" wx:if="{{weapp.bound}}">
+        <view class="apple-label">已绑定微信</view>
+        <view class="apple-p">昵称：{{weapp.nickname || '未知'}}</view>
+        <view class="apple-p">OpenID：{{weapp.openidMasked || '已隐藏'}}</view>
+        <view class="apple-p" wx:if="{{!form.securityEmail && !form.securityEmailExempt}}" style="color:#d97706;margin-top:8rpx;">安全提示：未设置密保邮箱，换绑等敏感操作受限</view>
+      </view>
+    </view>
+
+    <view style="margin-top:24rpx; word-break:break-all; font-size:24rpx;">
+      <text>{{log}}</text>
+    </view>
+  </view>
+</view>

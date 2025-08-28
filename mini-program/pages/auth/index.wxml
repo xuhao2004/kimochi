@@ -1,0 +1,26 @@
+<view class="apple-page safe-bottom">
+  <view class="apple-card">
+    <view class="apple-title" bindlongpress="goDevSettings">欢迎使用kimochi心晴</view>
+    <view class="apple-p apple-muted">请先选择登录或注册方式。若你的微信已与账号绑定，将自动登录。</view>
+
+    <view class="apple-section">
+      <view class="apple-h2">登录</view>
+      <button class="apple-button apple-button-primary" bindtap="goConfirmLogin">登录码 + 确认登录</button>
+      <button class="apple-button" bindtap="goPasswordLogin" style="margin-top:12rpx;">账号密码登录</button>
+      <button class="apple-button" bindtap="goScan" style="margin-top:12rpx;">扫一扫扫码登录/绑定</button>
+    </view>
+
+    <view class="apple-section">
+      <view class="apple-h2">注册</view>
+      <button class="apple-button" bindtap="goRegister">自助注册</button>
+    </view>
+
+    <view class="apple-section">
+      <view class="apple-h2">与已有账号绑定</view>
+      <view class="apple-p apple-muted">已在网站登录的用户可生成绑定码后在此确认绑定，或在首页使用“扫一扫”。</view>
+      <button class="apple-button" bindtap="goConfirmLogin">前往“确认登录/绑定”</button>
+    </view>
+  </view>
+</view>
+
+

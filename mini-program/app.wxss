@@ -1,0 +1,216 @@
+/**app.wxss**/
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 200rpx 0;
+  box-sizing: border-box;
+} 
+ 
+/* Apple-like global UI helpers */
+page {
+  background-color: #f7f8fa;
+  color: #111111;
+}
+
+.apple-page {
+  padding: 24rpx 28rpx 40rpx;
+}
+
+.apple-card {
+  background-color: #ffffff;
+  border-radius: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.06);
+  padding: 28rpx;
+}
+
+/* Skeleton (骨架屏) */
+.skeleton {
+  background: linear-gradient(90deg, #f2f3f5 25%, #e9ebee 37%, #f2f3f5 63%);
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+  border-radius: 16rpx;
+}
+@keyframes skeleton-loading {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+/* 暗色模式支持 */
+@media (prefers-color-scheme: dark) {
+  page { background-color: #0b0b0c; color: #f2f3f5; }
+  .apple-card { background-color: #151517; box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.5); }
+  .apple-input { background-color: #1c1c1f; border-color: #2a2a2d; color: #f2f3f5; }
+  .apple-label, .apple-muted { color: #9aa0a6; }
+  button.apple-button { background-color: #1b1c1e; color: #f2f3f5; border-color: #34363a; }
+  button.apple-button-primary { background-color: #e5e7eb; color: #0b0b0c; border-color: #e5e7eb; }
+}
+
+.apple-title {
+  font-weight: 600;
+  font-size: 34rpx;
+  line-height: 1.4;
+}
+
+.apple-h2 {
+  font-weight: 600;
+  font-size: 30rpx;
+  line-height: 1.5;
+  margin-bottom: 12rpx;
+}
+
+.apple-section {
+  margin-top: 24rpx;
+}
+
+.apple-p {
+  font-size: 28rpx;
+  color: #333333;
+  line-height: 1.8;
+}
+
+.apple-list {
+  margin-top: 8rpx;
+  padding-left: 24rpx;
+}
+
+.apple-li {
+  position: relative;
+  margin: 8rpx 0;
+  padding-left: 16rpx;
+}
+
+.apple-muted {
+  color: #666666;
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Buttons */
+button.apple-button {
+  border: 1rpx solid #e5e5e5;
+  background-color: #ffffff;
+  color: #111111;
+  border-radius: 28rpx;
+  padding: 24rpx 32rpx;
+  font-size: 28rpx;
+  margin-top: 12rpx;
+  box-shadow: 0 6rpx 18rpx rgba(0,0,0,0.06);
+}
+
+button.apple-button:active {
+  transform: scale(0.99);
+  transition: transform 120ms ease-out;
+}
+
+button.apple-button-primary {
+  background-color: #111111;
+  color: #ffffff;
+  border-color: #111111;
+}
+
+/* 首页卡片栅格 */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
+}
+.feature-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f7f8fa 100%);
+  border: 1rpx solid #eee;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.06);
+}
+.feature-icon {
+  width: 64rpx; height: 64rpx; border-radius: 18rpx; display:flex; align-items:center; justify-content:center; background:#f1f5f9; margin-bottom: 12rpx;
+}
+.feature-title { font-size: 30rpx; font-weight: 600; }
+.feature-desc { font-size: 24rpx; color: #666; margin-top: 6rpx; }
+
+.pill {
+  display:inline-flex; align-items:center; padding: 6rpx 12rpx; border-radius: 999rpx; font-size: 22rpx; border:1rpx solid #e5e7eb; background:#fff; color:#111;
+}
+.pill-primary { background:#111; color:#fff; border-color:#111; }
+.pill-muted { background:#f3f4f6; color:#666; border-color:#e5e7eb; }
+
+.fade-in { opacity: 0; transform: translateY(10rpx); animation: fadeInUp 360ms ease forwards; }
+@keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+/* 毛玻璃标题栏示例 */
+.frost-bar {
+  position: sticky; top: 0; z-index: 10; backdrop-filter: saturate(180%) blur(20px);
+  background: rgba(255,255,255,0.72); border-bottom: 1rpx solid rgba(0,0,0,0.06); padding: 16rpx 20rpx; border-radius: 20rpx;
+}
+
+@media (prefers-color-scheme: dark) {
+  .feature-card { background: linear-gradient(135deg, #17181a 0%, #0f1012 100%); border-color: #2a2a2d; }
+  .feature-icon { background: #1e1f22; }
+  .frost-bar { background: rgba(22,22,24,0.72); border-color: rgba(255,255,255,0.06); }
+}
+
+/* Small helpers */
+.link {
+  color: #0b84ff;
+}
+
+/* Form fields */
+.apple-field {
+  margin: 20rpx 0;
+}
+
+.apple-label {
+  font-size: 26rpx;
+  color: #666666;
+  margin-bottom: 10rpx;
+}
+
+.apple-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1rpx solid #e5e5e5;
+  background-color: #ffffff;
+  border-radius: 20rpx;
+  /* 统一高度：至少与 picker "选择性别" 一致 */
+  min-height: 96rpx;
+  padding: 0 28rpx;
+  font-size: 30rpx;
+  line-height: 1.4;
+  color: #111111;
+}
+
+/* 原生 input 需要显式高度以与 picker 一致 */
+input.apple-input {
+  height: 96rpx;
+}
+
+/* picker 内部使用 view.apple-input，确保垂直居中 */
+picker .apple-input, .picker .apple-input {
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+}
+
+/* 文本域默认更高一些 */
+textarea.apple-input {
+  min-height: 220rpx;
+  padding: 18rpx 28rpx;
+}
+
+/* 统一占位符与输入光标视觉 */
+.apple-placeholder { color: #9ca3af; }
+@media (prefers-color-scheme: dark) {
+  .apple-placeholder { color: #6b7280; }
+}
+
+/* Avatar */
+.avatar-lg {
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: 50%;
+  display: block;
+}

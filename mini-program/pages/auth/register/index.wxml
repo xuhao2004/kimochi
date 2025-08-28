@@ -1,0 +1,34 @@
+<view class="apple-page safe-bottom">
+  <view class="apple-card">
+    <view class="apple-title">自助注册</view>
+    <view class="apple-field">
+      <view class="apple-label">姓名</view>
+      <input class="apple-input" placeholder="姓名" placeholder-class="apple-placeholder" cursor-spacing="28" adjust-position="true" value="{{reg.name}}" bindinput="onRegName" />
+    </view>
+    <view class="apple-field">
+      <view class="apple-label">性别</view>
+      <picker mode="selector" range="{{genders}}" bindchange="onRegGender">
+        <view class="apple-input">{{reg.gender||'选择性别'}}</view>
+      </picker>
+    </view>
+    <view class="apple-field">
+      <view class="apple-label">出生日期</view>
+      <input class="apple-input" placeholder="YYYY-MM-DD" placeholder-class="apple-placeholder" cursor-spacing="28" adjust-position="true" value="{{reg.birthDate}}" bindinput="onRegBirth" />
+    </view>
+
+    <view class="apple-section">
+      <view class="apple-h2">使用邮箱注册</view>
+      <input class="apple-input" placeholder="邮箱（作为账号与密保邮箱）" placeholder-class="apple-placeholder" cursor-spacing="28" adjust-position="true" value="{{emailReg.identifier}}" bindinput="onEmailIdentifier" />
+      <input class="apple-input" placeholder="密码（至少8位）" placeholder-class="apple-placeholder" cursor-spacing="28" adjust-position="true" confirm-type="next" password value="{{emailReg.password}}" bindinput="onEmailPassword" />
+      <view style="display:flex; gap:12rpx; align-items:center;">
+        <input class="apple-input" placeholder="邮箱验证码" placeholder-class="apple-placeholder" cursor-spacing="28" adjust-position="true" value="{{emailReg.code}}" bindinput="onEmailCode" />
+        <button class="apple-button" bindtap="sendEmailCode" disabled="{{sendingEmailCode}}">{{sendingEmailCode?'已发送...':'发送验证码'}}</button>
+      </view>
+      <button class="apple-button apple-button-primary" bindtap="doEmailRegister">邮箱注册</button>
+    </view>
+
+    
+  </view>
+</view>
+
+

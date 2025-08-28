@@ -1,0 +1,64 @@
+<view class="apple-page safe-bottom">
+  <view class="apple-card">
+    <view class="apple-title">发布心情</view>
+    <view class="apple-field">
+      <view class="apple-label">标题</view>
+      <input class="apple-input" placeholder="说点什么..." placeholder-class="apple-placeholder" cursor-spacing="28" adjust-position="true" value="{{title}}" bindinput="onTitle" />
+    </view>
+    <view class="apple-field">
+      <view class="apple-label">内容</view>
+      <textarea class="apple-input" style="min-height:220rpx;" placeholder="记录你的此刻心情..." placeholder-class="apple-placeholder" cursor-spacing="28" adjust-position="true" value="{{content}}" bindinput="onContent"/>
+    </view>
+    <view class="apple-field">
+      <view class="apple-label">上传图片（可选）</view>
+      <view style="display:flex; gap:12rpx; flex-wrap:wrap;">
+        <block wx:for="{{images}}" wx:key="*this">
+          <image src="{{item}}" style="width:160rpx;height:160rpx;border-radius:12rpx;" mode="aspectFill" />
+        </block>
+        <button class="apple-button" bindtap="chooseImages">选择图片</button>
+      </view>
+    </view>
+    <view class="apple-field">
+      <view class="apple-label">位置（可选）</view>
+      <view style="display:flex; gap:10rpx; align-items:center;">
+        <input class="apple-input" placeholder="未选择" value="{{locationName}}" disabled/>
+        <button class="apple-button" bindtap="chooseLocation">选择位置</button>
+        <button class="apple-button" bindtap="clearLocation">清除</button>
+      </view>
+    </view>
+    <view class="apple-field" style="display:flex;gap:16rpx;align-items:center;">
+      <view class="apple-label">匿名发布</view>
+      <switch checked="{{isAnonymous}}" bindchange="onAnon" />
+    </view>
+    <view class="apple-field">
+      <view class="apple-label">心情/天气标签</view>
+      <input class="apple-input" placeholder="如：开心, 多云" placeholder-class="apple-placeholder" cursor-spacing="28" adjust-position="true" value="{{tagsInput}}" bindinput="onTagsInput" />
+    </view>
+    <view class="apple-field">
+      <view class="apple-label">可见范围</view>
+      <picker range="{{visibilities}}" value="{{visIndex}}" bindchange="onVisChange">
+        <view class="apple-input">{{visibilities[visIndex]}}</view>
+      </picker>
+    </view>
+    <view class="apple-field" wx:if="{{visMap[visIndex]==='selective_friends'}}">
+      <view class="apple-label">可见好友（可多选）</view>
+      <view style="display:flex; flex-wrap:wrap; gap:8rpx;">
+        <label wx:for="{{friends}}" wx:key="id" style="display:flex;align-items:center;gap:6rpx;padding:6rpx 10rpx;border:1rpx solid #eee;border-radius:12rpx;">
+          <checkbox value="{{item.id}}" checked="{{selectedFriends[item.id]}}" data-id="{{item.id}}" bindchange="onToggleFriend"/>
+          <text>{{item.nickname || item.name}}</text>
+        </label>
+      </view>
+    </view>
+    <view class="apple-field" wx:if="{{visMap[visIndex]==='selective_friends' || visMap[visIndex]==='teachers'}}">
+      <view class="apple-label">可见分组（可多选）</view>
+      <view style="display:flex; flex-wrap:wrap; gap:8rpx;">
+        <label wx:for="{{groups}}" wx:key="id" style="display:flex;align-items:center;gap:6rpx;padding:6rpx 10rpx;border:1rpx solid #eee;border-radius:12rpx;">
+          <checkbox value="{{item.id}}" checked="{{selectedGroups[item.id]}}" data-id="{{item.id}}" bindchange="onToggleGroup"/>
+          <text>{{item.name}}</text>
+        </label>
+      </view>
+    </view>
+    <button class="apple-button apple-button-primary" bindtap="onSubmit">发布</button>
+  </view>
+</view>
+
