@@ -1,611 +1,390 @@
-# 故障排除指南
+# 🆘 kimochi心晴 - 故障排除指南
 
-## 环境配置问题
+**版本**: v2.0.0  
+**最后更新**: 2025-08-28  
+**基于**: 实际生产环境问题解决经验
 
-### 1. 环境文件缺失
-**现象**: 运行命令时提示环境配置文件缺失
-```
-[WARN] 未找到环境文件: .env.local
-```
+## 🎯 快速诊断
 
-**解决方案**:
+### 系统健康检查
 ```bash
-# 手动复制模板
-cp .env.example .env.local
+# 连接服务器
+ssh -i kimochi-prod.pem root@47.104.8.84
 
-# 编辑环境变量
-nano .env.local
+# 快速状态检查
+kimochi-status
+
+# 详细检查
+pm2 status
+systemctl status nginx
+curl -k https://localhost/api/health
 ```
 
-### 2. JWT_SECRET 为空或无效
-**现象**: 登录失败，JWT 相关错误
-```
-Error: JWT_SECRET is required
-```
+### 常见错误代码
+| 错误码 | 含义 | 快速解决方案 |
+|--------|------|--------------|
+| 500 | 服务器内部错误 | 检查PM2日志 |
+| 502 | 网关错误 | 重启应用/Nginx |
+| 503 | 服务不可用 | 检查应用是否运行 |
+| SSL证书错误 | HTTPS证书问题 | 重新生成证书 |
 
-**解决方案**:
+## 🌍 Safari地理位置权限问题
+
+### 问题现象
+- ❌ Safari不请求地理位置权限
+- ❌ iPhone/Mac上定位功能不工作
+- ✅ Android和第三方浏览器正常
+
+### 根本原因
+Safari要求HTTPS环境才能使用地理位置API
+
+### 解决方案 ✅
+1. **确保HTTPS访问**
+   ```bash
+   # 检查HTTPS是否正常
+   curl -I https://47.104.8.84
+   
+   # 检查证书状态
+   openssl s_client -connect 47.104.8.84:443 -servername 47.104.8.84
+   ```
+
+2. **重新生成SSL证书**
+   ```bash
+   # 生成自签名证书
+   openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+     -keyout /etc/nginx/ssl/kimochi.key \
+     -out /etc/nginx/ssl/kimochi.crt \
+     -subj '/C=CN/ST=Beijing/L=Beijing/O=Kimochi/CN=47.104.8.84'
+   
+   # 重启nginx
+   systemctl reload nginx
+   ```
+
+3. **验证修复**
+   - 访问 https://47.104.8.84
+   - 在Safari中测试地理位置功能
+   - 应该会正常弹出权限询问
+
+## 🔌 第三方API服务问题
+
+### API测试工具
 ```bash
-# 生成随机密钥
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+# 运行完整API测试
+node scripts/test-apis.js
 
-# 手动设置到环境文件
-echo 'JWT_SECRET="your-generated-secret-here"' >> .env.local
+# 或使用服务器便捷命令
+kimochi-test-apis
 ```
 
-### 3. 数据库连接失败
-**现象**: Prisma 连接错误
-```
-Error: Can't reach database server
-```
+### 1. SMTP邮件服务问题
 
-**解决方案**:
+#### 问题现象
+- ❌ 密码重置邮件发送失败
+- ❌ 验证码邮件不发送
+
+#### 常见原因
+1. **环境变量配置错误**
+2. **SMTP密码过期**
+3. **QQ邮箱安全设置**
+
+#### 解决方案
 ```bash
-# 检查 DATABASE_URL 配置
-cat .env.local | grep DATABASE_URL
+# 检查SMTP配置
+grep SMTP /opt/kimochi/.env.prod.local
 
-# 重新初始化数据库
-npx prisma migrate reset
-
-# 检查文件权限
-ls -la prisma/
+# 测试邮件发送
+node -e "
+const nodemailer = require('nodemailer');
+const transporter = nodemailer.createTransport({
+  host: 'smtp.qq.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: 'your-email@qq.com',
+    pass: 'your-smtp-password'
+  }
+});
+transporter.verify().then(console.log).catch(console.error);
+"
 ```
 
-## 端口与网络问题
+### 2. 天气API问题
 
-### 4. 端口被占用
-**现象**: 启动失败，端口冲突
-```
-Error: listen EADDRINUSE :::3001
-```
+#### 问题现象
+- ❌ 天气信息不显示
+- ❌ API返回"未配置和风天气密钥"
 
-**解决方案**:
+#### 解决方案
 ```bash
-# 方案1: 查找并杀死占用进程
-lsof -ti :3000 | xargs kill -9
+# 检查天气API配置
+grep HEWEATHER /opt/kimochi/.env.prod.local
 
-# 方案2: 使用其他端口
-PORT=3005 npm run dev
-
-# 方案3: 检查所有Node.js进程
-ps aux | grep node
+# 测试天气API
+curl "https://devapi.qweather.com/v7/weather/now?location=101010100&key=YOUR_KEY"
 ```
 
-### 5. 网络连接失败
-**现象**: 无法访问外部服务
-```
-Error: getaddrinfo ENOTFOUND
-```
+### 3. 高德地图API数字签名问题
 
-**解决方案**:
+#### 问题现象
+- ❌ 错误：INVALID_USER_SIGNATURE
+- ❌ 错误码：10007
+
+#### 根本原因
+高德开放平台开启了数字签名验证
+
+#### 解决方案 ✅
+1. **关闭数字签名** (推荐)
+   - 登录高德开放平台
+   - 找到应用设置
+   - 关闭"数字签名"开关
+
+2. **或配置数字签名**
+   ```bash
+   # 确保环境变量包含私钥
+   grep AMAP_SECRET_KEY /opt/kimochi/.env.prod.local
+   ```
+
+### 4. AI服务问题
+
+#### 问题现象
+- ❌ AI分析功能不可用
+- ❌ DeepSeek API调用失败
+
+#### 解决方案
 ```bash
-# 检查网络连接
-ping 8.8.8.8
+# 检查DeepSeek配置
+grep DEEPSEEK /opt/kimochi/.env.prod.local
 
-# 检查 DNS 解析
-nslookup google.com
-
-# 使用代理（如需要）
-export HTTP_PROXY=http://proxy.example.com:8080
+# 测试DeepSeek API
+curl -X POST "https://api.deepseek.com/chat/completions" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"deepseek-chat","messages":[{"role":"user","content":"测试"}]}'
 ```
 
-## 依赖安装问题
+## 📊 应用性能问题
 
-### 6. npm 安装失败
-**现象**: 依赖安装报错
-```
-npm ERR! code EACCES
-npm ERR! permission denied
-```
+### 内存不足问题 (2核2G服务器)
 
-**解决方案**:
+#### 问题现象
+- 🐌 应用响应缓慢
+- 💥 PM2进程意外重启
+- 📊 内存使用率>90%
+
+#### 解决方案
 ```bash
-# 方案1: 使用项目本地缓存
-NPM_CONFIG_CACHE=./.npm-cache npm install
+# 检查内存使用
+free -h
+htop
 
-# 方案2: 修复 npm 权限
-sudo chown -R $(whoami) ~/.npm
+# 检查Swap分区
+swapon --show
 
-# 方案3: 清理缓存重试
-npm cache clean --force
-rm -rf node_modules package-lock.json
-npm install
+# 重启应用释放内存
+pm2 restart kimochi
+
+# 如果需要，清理系统缓存
+sync && echo 3 > /proc/sys/vm/drop_caches
 ```
 
-### 7. PM2 全局安装失败
-**现象**: PM2 命令不可用
-```
-pm2: command not found
-```
+### 数据库性能问题
 
-**解决方案**:
+#### 问题现象
+- 🐌 API响应时间长
+- 💾 数据库查询缓慢
+
+#### 解决方案
 ```bash
-# 使用npm脚本启动生产环境
-npm run start
+# 检查数据库文件大小
+ls -lh /opt/kimochi/prisma/production.db
 
-# 如需全局安装PM2
-npm install -g pm2
-
-# 或使用本地版本
-npx pm2 list
+# 如果数据库过大，可以清理日志表
+cd /opt/kimochi
+npx prisma db push
 ```
 
-## Git 操作问题
+## 🔧 部署相关问题
 
-### 8. Git 推送失败
-**现象**: 推送时认证失败
-```
-Permission denied (publickey)
-```
+### 1. 环境变量未加载
 
-**解决方案**:
+#### 问题现象
+- ❌ API返回"未配置XXX密钥"
+- ✅ 环境文件中配置正确
+
+#### 根本原因
+PM2没有正确加载环境变量
+
+#### 解决方案 ✅
 ```bash
-# 生成SSH密钥
-ssh-keygen -t ed25519 -C "your-email@example.com"
+# 检查ecosystem.config.js配置
+cat /opt/kimochi/ecosystem.config.js | grep -A5 env_production
 
-# 手动添加到 GitHub
-cat ~/.ssh/id_ed25519.pub
-# 复制内容到 GitHub → Settings → SSH and GPG keys
-
-# 测试连接
-ssh -T git@github.com
+# 重启应用确保加载环境变量
+pm2 delete kimochi
+pm2 start ecosystem.config.js --env production
 ```
 
-### 9. 提交失败
-**现象**: Git 提交被拒绝
-```
-error: failed to push some refs
-```
+### 2. Nginx配置问题
 
-**解决方案**:
+#### 问题现象
+- ❌ 显示Nginx默认页面
+- ❌ 502 Bad Gateway错误
+
+#### 解决方案
 ```bash
-# 拉取最新代码
-git pull origin main
+# 检查nginx配置
+nginx -t
 
-# 解决冲突后重新提交
-git add .
-git commit -m "fix: 解决冲突"
-git push
+# 查看nginx错误日志
+tail -f /var/log/nginx/error.log
 
-# 强制推送（谨慎使用）
-git push --force-with-lease
+# 重启nginx
+systemctl restart nginx
 ```
 
-## Cloudflare 隧道问题
+### 3. 权限问题
 
-### 10. Cloudflared 未安装
-**现象**: 命令不存在
-```
-cloudflared: command not found
-```
+#### 问题现象
+- ❌ 文件无法写入
+- ❌ PM2无法启动
 
-**解决方案**:
+#### 解决方案
 ```bash
-# macOS
-brew install cloudflared
+# 修复文件权限
+chown -R root:root /opt/kimochi
+chmod -R 755 /opt/kimochi
 
-# Ubuntu/Debian
-curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null
-echo "deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflared.list
-sudo apt-get update && sudo apt-get install cloudflared
-
-# CentOS/RHEL
-sudo yum install cloudflared
+# 修复日志目录权限
+mkdir -p /opt/kimochi/logs
+chmod 755 /opt/kimochi/logs
 ```
 
-### 11. 隧道登录失败
-**现象**: 浏览器认证失败
-```
-Error: failed to login
-```
+## 🌐 网络连接问题
 
-**解决方案**:
-```bash
-# 重新登录
-./scripts/kimochi.sh cf setup
+### GitHub访问受限
 
-# 手动登录
-cloudflared tunnel login
+#### 问题现象
+- ❌ 无法从GitHub拉取代码
+- ❌ npm安装失败
 
-# 检查凭据文件
-ls -la ~/.cloudflared/
-```
+#### 根本原因
+中国网络环境限制
 
-### 12. 域名解析失败
-**现象**: 域名无法访问
-```
-This site can't be reached
-```
+#### 解决方案 ✅ (已实现)
+1. **使用镜像源**
+   ```bash
+   # npm镜像源
+   npm config set registry https://registry.npmmirror.com/
+   
+   # 检查配置
+   npm config list
+   ```
 
-**解决方案**:
-```bash
-# 测试隧道连通性
-./scripts/kimochi.sh cf test
+2. **本地上传部署**
+   ```bash
+   # 使用本地更新脚本
+   ./scripts/local-update.sh -d
+   ```
 
-# 检查 DNS 设置
-nslookup dev.kimochi.space
+## 📱 浏览器兼容性问题
 
-# 重启隧道
-./scripts/kimochi.sh cf start
-```
+### Safari特殊问题
 
-## 数据库问题
+#### 1. 地理位置API问题
+**解决方案**: 参考上面的HTTPS配置
 
-### 13. 数据库迁移失败
-**现象**: Prisma 迁移错误
-```
-Error: Migration failed
-```
-
-**解决方案**:
-```bash
-# 重置数据库（开发环境）
-rm prisma/dev.db
-./scripts/kimochi.sh db init development
-
-# 强制推送 Schema（谨慎使用）
-npx prisma db push --accept-data-loss
-
-# 检查迁移状态
-npx prisma migrate status
-```
-
-### 14. 数据库锁定
-**现象**: 数据库被锁定
-```
-Error: database is locked
-```
-
-**解决方案**:
-```bash
-# 查找占用进程
-lsof prisma/dev.db
-
-# 杀死占用进程
-pkill -f "prisma\|node"
-
-# 重启应用
-./scripts/kimochi.sh stop --force
-./scripts/kimochi.sh oneclick dev
-```
-
-### 15. 数据合并冲突
-**现象**: 数据库合并失败
-```
-Error: UNIQUE constraint failed
-```
-
-**解决方案**:
-```bash
-# 使用覆盖策略
-./scripts/kimochi.sh db merge production backup.db overwrite
-
-# 手动处理冲突
-sqlite3 prisma/prod.db
-.schema
-# 检查冲突数据并手动清理
-```
-
-## 系统兼容性问题
-
-### 16. Windows 路径问题
-**现象**: 路径分隔符错误
-```
-Error: ENOENT: no such file or directory
-```
-
-**解决方案**:
-```powershell
-# 使用 PowerShell 入口
-.\scripts\kimochi.ps1 setup
-
-# 检查路径格式
-Get-Location
-```
-
-### 17. macOS 权限问题
-**现象**: 操作被拒绝
-```
-Operation not permitted
-```
-
-**解决方案**:
-```bash
-# 修复目录权限
-sudo chown -R $(whoami) .
-
-# 允许终端完全磁盘访问
-# 系统偏好设置 → 安全性与隐私 → 隐私 → 完全磁盘访问
-
-# 使用 sudo（谨慎）
-sudo ./scripts/kimochi.sh setup
-```
-
-### 18. Linux 依赖缺失
-**现象**: 系统工具不可用
-```
-bash: lsof: command not found
-```
-
-**解决方案**:
-```bash
-# Ubuntu/Debian
-sudo apt-get update
-sudo apt-get install lsof sqlite3 curl git
-
-# CentOS/RHEL
-sudo yum install lsof sqlite curl git
-
-# Alpine Linux
-apk add lsof sqlite curl git
-```
-
-## 性能问题
-
-### 19. 启动缓慢
-**现象**: 应用启动时间过长
-
-**解决方案**:
-```bash
-# 清理缓存
-rm -rf .next node_modules/.cache
-
-# 使用更快的包管理器
-npm install -g pnpm
-pnpm install
-
-# 检查磁盘空间
-df -h
-```
-
-### 20. 内存不足
-**现象**: 构建或运行时内存溢出
-```
-JavaScript heap out of memory
-```
-
-**解决方案**:
-```bash
-# 增加 Node.js 内存限制
-export NODE_OPTIONS="--max-old-space-size=4096"
-
-# 或在 package.json 中设置
-"scripts": {
-  "build": "NODE_OPTIONS='--max-old-space-size=4096' next build"
+#### 2. 其他Safari特殊行为
+```javascript
+// 前端代码已包含Safari特殊处理
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+if (isSafari) {
+  // Safari特殊处理逻辑
 }
 ```
 
-## 高级功能问题
+## 🔄 数据恢复
 
-### 21. 系统诊断问题
-
-#### doctor 命令执行失败
-**现象**: `./scripts/kimochi.sh doctor` 报错
-**原因**: 缺少必要的系统工具或权限不足
-**解决方案**:
+### 备份恢复
 ```bash
-# 确保有必要的系统工具
-# macOS/Linux
-which lsof df sqlite3
+# 查看可用备份
+ls -la /opt/kimochi-backup-*
 
-# 如果缺少工具，安装它们
-# macOS
-brew install sqlite
-
-# Ubuntu/Debian
-sudo apt-get install sqlite3 lsof
-
-# 检查权限
-chmod +x tools/cli/kimochi.js
+# 恢复到指定备份
+cd /opt/kimochi-backup-20250828_120000
+cp -r . /opt/kimochi/
+cd /opt/kimochi
+pm2 restart kimochi
 ```
 
-#### 数据库连接检查失败
-**现象**: doctor 报告数据库连接失败
-**原因**: 环境变量未设置或数据库文件不存在
-**解决方案**:
+### 数据库恢复
 ```bash
-# 检查环境变量
-./scripts/kimochi.sh env jwt --gen
-
-# 初始化数据库
-./scripts/kimochi.sh db init development
-
-# 重新运行诊断
-./scripts/kimochi.sh doctor --fix
+# 如果数据库损坏
+cd /opt/kimochi
+cp prisma/production.db prisma/production.db.broken
+# 从备份恢复或重新初始化
+npx prisma db push
 ```
 
-### 22. 性能优化问题
+## 🚨 紧急恢复流程
 
-#### optimize 命令权限错误
-**现象**: 优化过程中出现权限错误
-**原因**: 无法访问某些目录或文件
-**解决方案**:
+### 完全系统故障
+1. **连接服务器**
+   ```bash
+   ssh -i kimochi-prod.pem root@47.104.8.84
+   ```
+
+2. **检查系统状态**
+   ```bash
+   systemctl status nginx
+   pm2 status
+   df -h
+   free -h
+   ```
+
+3. **重启所有服务**
+   ```bash
+   systemctl restart nginx
+   pm2 restart all
+   ```
+
+4. **如果仍有问题，完全重新部署**
+   ```bash
+   # 从本地重新部署
+   ./scripts/local-update.sh -d
+   ```
+
+## 📞 获取更多帮助
+
+### 日志位置
 ```bash
-# 检查项目目录权限
-ls -la .
+# PM2应用日志
+pm2 logs kimochi
 
-# 修复权限（谨慎使用）
-chmod -R 755 .
-chown -R $USER:$USER .
+# Nginx日志
+tail -f /var/log/nginx/error.log
+tail -f /var/log/nginx/access.log
 
-# 或者使用 sudo 运行
-sudo ./scripts/kimochi.sh optimize --fix
+# 系统日志
+journalctl -u nginx
 ```
 
-#### 缓存清理失败
-**现象**: 缓存清理过程中报错
-**原因**: 文件被占用或权限不足
-**解决方案**:
-```bash
-# 停止所有相关进程
-./scripts/kimochi.sh stop --force
+### 联系支持
+- **GitHub Issues**: https://github.com/xuhao2004/kimochi/issues
+- **管理员邮箱**: admin@kimochi.space
+- **在线系统**: https://47.104.8.84
 
-# 手动清理缓存
-rm -rf .next/cache node_modules/.cache
+---
 
-# 重新运行优化
-./scripts/kimochi.sh optimize
-```
+## ✅ 问题解决检查清单
 
-### 23. 监控与备份问题
+解决问题后，请执行以下检查：
 
-#### 监控命令无法获取系统信息
-**现象**: `monitor` 命令显示信息不完整
-**原因**: 缺少系统监控工具
-**解决方案**:
-```bash
-# macOS
-brew install coreutils
+- [ ] 应用正常启动 (`pm2 status`)
+- [ ] 网站可正常访问 (https://47.104.8.84)
+- [ ] API健康检查通过 (`curl https://47.104.8.84/api/health`)
+- [ ] 第三方API服务正常 (`kimochi-test-apis`)
+- [ ] Safari地理位置功能正常
+- [ ] 邮件发送功能正常
+- [ ] 系统资源使用合理 (`kimochi-status`)
 
-# Ubuntu/Debian
-sudo apt-get install sysstat
-
-# 检查工具是否可用
-df -h
-lsof -v
-```
-
-#### 备份创建失败
-**现象**: `backup` 命令报错
-**原因**: 磁盘空间不足或权限问题
-**解决方案**:
-```bash
-# 检查磁盘空间
-df -h
-
-# 检查备份目录权限
-ls -la .backups/
-
-# 创建备份目录
-mkdir -p .backups
-chmod 755 .backups
-
-# 清理旧备份释放空间
-find .backups -name "backup-*" -mtime +7 -delete
-```
-
-#### 日志查看失败
-**现象**: `logs` 命令无法显示日志
-**原因**: 日志文件不存在或权限问题
-**解决方案**:
-```bash
-# 检查日志目录
-ls -la .deploy-logs/
-
-# 创建日志目录
-mkdir -p .deploy-logs
-chmod 755 .deploy-logs
-
-# 检查日志文件
-ls -la .deploy-logs/*.log
-
-# 如果没有日志，先运行一些命令生成日志
-./scripts/kimochi.sh doctor
-./scripts/kimochi.sh logs general
-```
-
-### 24. CI/CD 相关问题
-
-#### GitHub Actions 构建失败
-**现象**: CI/CD 流水线失败
-**原因**: 环境配置或依赖问题
-**解决方案**:
-1. 检查 `.github/workflows/` 配置文件
-2. 确保所有必要的 secrets 已配置
-3. 本地测试构建过程：
-```bash
-# 本地测试构建
-npm ci
-npm run build
-npm test
-
-# 检查 Docker 构建
-docker build -t kimochi-test .
-```
-
-#### Docker 容器启动失败
-**现象**: 容器化部署失败
-**原因**: 配置错误或端口冲突
-**解决方案**:
-```bash
-# 检查端口占用
-./scripts/kimochi.sh monitor
-
-# 停止冲突的服务
-./scripts/kimochi.sh stop --force
-
-# 重新构建镜像
-docker-compose build --no-cache
-
-# 启动服务
-docker-compose up -d
-```
-
-## 调试技巧
-
-### 系统诊断
-```bash
-# 全面健康检查（新版本）
-./scripts/kimochi.sh doctor
-
-# 性能监控
-./scripts/kimochi.sh monitor
-
-# 系统信息
-./scripts/kimochi.sh system
-
-# 传统健康检查
-./scripts/kimochi.sh health
-
-# 检查进程状态
-ps aux | grep node
-
-# 检查端口占用
-netstat -tulpn | grep :300
-
-# 检查磁盘空间
-df -h
-
-# 检查内存使用
-free -h
-```
-
-### 日志查看
-```bash
-# 查看应用日志
-tail -f .deploy-logs/*.log
-
-# 查看系统日志
-journalctl -f
-
-# 查看 PM2 日志
-npx pm2 logs
-```
-
-### 网络诊断
-```bash
-# 测试本地端口
-curl http://localhost:3001
-
-# 测试域名解析
-dig dev.kimochi.space
-
-# 测试 HTTPS 连接
-curl -I https://dev.kimochi.space
-```
-
-## 获取帮助
-
-### 社区支持
-- GitHub Issues: 报告 Bug 和功能请求
-- 讨论区: 技术交流和问题讨论
-
-### 联系方式
-- 邮箱: support@kimochi.space
-- 文档: [本地开发指南](LOCAL-DEVELOPMENT-GUIDE.md)
-
-### 紧急情况
-如果遇到严重问题无法解决：
-1. 备份重要数据
-2. 记录错误信息和操作步骤
-3. 提交详细的 Issue 报告
-4. 考虑回滚到上一个稳定版本
+**记住**: 所有解决方案都基于实际生产环境验证，确保可靠性！ 🚀
