@@ -35,18 +35,21 @@ main() {
     # 1. 系统更新 (使用阿里云镜像)
     log_info "配置阿里云镜像源并更新系统..."
     cp /etc/apt/sources.list /etc/apt/sources.list.backup
-    cat > /etc/apt/sources.list << 'EOF'
+    
+    # 获取Ubuntu版本代号
+    UBUNTU_CODENAME=$(lsb_release -cs)
+    log_info "检测到Ubuntu版本: $UBUNTU_CODENAME"
+    
+    cat > /etc/apt/sources.list << EOF
 # 阿里云Ubuntu镜像源
-deb http://mirrors.aliyun.com/ubuntu/ $(lsb_release -cs) main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ $(lsb_release -cs) main restricted universe multiverse
-deb http://mirrors.aliyun.com/ubuntu/ $(lsb_release -cs)-security main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ $(lsb_release -cs)-security main restricted universe multiverse
-deb http://mirrors.aliyun.com/ubuntu/ $(lsb_release -cs)-updates main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ $(lsb_release -cs)-updates main restricted universe multiverse
-deb http://mirrors.aliyun.com/ubuntu/ $(lsb_release -cs)-proposed main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ $(lsb_release -cs)-proposed main restricted universe multiverse
-deb http://mirrors.aliyun.com/ubuntu/ $(lsb_release -cs)-backports main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ $(lsb_release -cs)-backports main restricted universe multiverse
+deb http://mirrors.aliyun.com/ubuntu/ $UBUNTU_CODENAME main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ $UBUNTU_CODENAME main restricted universe multiverse
+deb http://mirrors.aliyun.com/ubuntu/ $UBUNTU_CODENAME-security main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ $UBUNTU_CODENAME-security main restricted universe multiverse
+deb http://mirrors.aliyun.com/ubuntu/ $UBUNTU_CODENAME-updates main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ $UBUNTU_CODENAME-updates main restricted universe multiverse
+deb http://mirrors.aliyun.com/ubuntu/ $UBUNTU_CODENAME-backports main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ $UBUNTU_CODENAME-backports main restricted universe multiverse
 EOF
     
     export DEBIAN_FRONTEND=noninteractive
@@ -101,7 +104,6 @@ EOF
     # 5. 配置npm中国镜像
     log_info "配置npm中国镜像源..."
     npm config set registry https://registry.npmmirror.com/
-    npm config set disturl https://npmmirror.com/mirrors/node/
     npm config set sass_binary_site https://npmmirror.com/mirrors/node-sass/
     npm config set electron_mirror https://npmmirror.com/mirrors/electron/
     npm config set python_mirror https://npmmirror.com/mirrors/python/

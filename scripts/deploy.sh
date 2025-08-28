@@ -160,7 +160,10 @@ init_server() {
     
     # 上传初始化脚本
     log_info "上传服务器初始化脚本..."
-    scp_upload "$PROJECT_ROOT/scripts/server-init.sh" "/tmp/"
+    scp -i "$SSH_KEY_PATH" \
+        -o StrictHostKeyChecking=no \
+        -o ConnectTimeout=10 \
+        "$PROJECT_ROOT/scripts/server-init.sh" "$SERVER_USER@$SERVER_IP:/tmp/"
     
     # 执行初始化脚本
     log_info "执行服务器初始化..."
