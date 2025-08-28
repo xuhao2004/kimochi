@@ -150,18 +150,23 @@ async function main() {
       name: process.env.SUPER_ADMIN_NAME || process.argv[4]
     };
     
-    // 如果没有提供密码，生成一个强密码
+    // 如果没有提供密码，使用默认密码
     if (!config.password) {
-      config.password = generateStrongPassword();
-      console.log('🔐 自动生成强密码');
+      config.password = DEFAULT_CONFIG.password; // 使用默认密码 kimochi@2025
+      console.log('🔐 使用默认密码 kimochi@2025');
     } else {
-      // 验证提供的密码强度
-      const validation = validatePassword(config.password);
-      if (!validation.isValid) {
-        console.log('⚠️  密码强度不足:');
-        validation.issues.forEach(issue => console.log(`   - ${issue}`));
-        console.log('🔐 使用自动生成的强密码');
-        config.password = generateStrongPassword();
+      // 如果是默认密码，直接使用，不进行强度验证
+      if (config.password === 'kimochi@2025') {
+        console.log('🔐 使用指定的默认密码 kimochi@2025');
+      } else {
+        // 对非默认密码进行强度验证
+        const validation = validatePassword(config.password);
+        if (!validation.isValid) {
+          console.log('⚠️  自定义密码强度不足:');
+          validation.issues.forEach(issue => console.log(`   - ${issue}`));
+          console.log('🔐 回退到默认密码 kimochi@2025');
+          config.password = DEFAULT_CONFIG.password;
+        }
       }
     }
     
