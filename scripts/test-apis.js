@@ -7,6 +7,7 @@
 
 const https = require('https');
 const http = require('http');
+const zlib = require('zlib');
 const nodemailer = require('nodemailer');
 
 // 颜色输出
@@ -28,24 +29,43 @@ const log = {
     step: (msg) => console.log(`${colors.purple}[TEST]${colors.reset} ${msg}`)
 };
 
-// HTTP请求工具
+// HTTP请求工具（支持gzip解压缩）
 function makeRequest(url, options = {}) {
     return new Promise((resolve, reject) => {
         const client = url.startsWith('https:') ? https : http;
+        
+        // 添加Accept-Encoding头支持压缩
+        if (!options.headers) options.headers = {};
+        options.headers['Accept-Encoding'] = 'gzip, deflate, br';
+        
         const req = client.request(url, options, (res) => {
-            let data = '';
-            res.on('data', chunk => data += chunk);
-            res.on('end', () => {
+            let chunks = [];
+            
+            // 处理压缩响应
+            let stream = res;
+            const encoding = res.headers['content-encoding'];
+            if (encoding === 'gzip') {
+                stream = res.pipe(zlib.createGunzip());
+            } else if (encoding === 'deflate') {
+                stream = res.pipe(zlib.createInflate());
+            } else if (encoding === 'br') {
+                stream = res.pipe(zlib.createBrotliDecompress());
+            }
+            
+            stream.on('data', chunk => chunks.push(chunk));
+            stream.on('end', () => {
+                const data = Buffer.concat(chunks).toString('utf8');
                 resolve({
                     statusCode: res.statusCode,
                     headers: res.headers,
                     data: data
                 });
             });
+            stream.on('error', reject);
         });
         
         req.on('error', reject);
-        req.setTimeout(10000, () => {
+        req.setTimeout(15000, () => {
             req.destroy();
             reject(new Error('请求超时'));
         });
@@ -176,7 +196,9 @@ async function testQWeatherAPI() {
         const response = await makeRequest(testUrl, {
             method: 'GET',
             headers: {
-                'User-Agent': 'kimochi-weather-test'
+                'User-Agent': 'Mozilla/5.0 (compatible; kimochi/1.0)',
+                'Accept': 'application/json',
+                'Accept-Language': 'zh-CN,zh;q=0.9'
             }
         });
 
@@ -230,13 +252,13 @@ async function testAmapAPI() {
             return;
         }
 
-        // 使用更简单的API端点测试
-        const testUrl = `https://restapi.amap.com/v3/config/district?keywords=110000&subdistrict=1&key=${apiKey}`;
+        // 使用高德地图静态API测试（无需签名）
+        const testUrl = `https://restapi.amap.com/v3/geocode/regeo?location=116.397428,39.90923&key=${apiKey}&radius=1000&extensions=all`;
 
         const response = await makeRequest(testUrl, {
             method: 'GET',
             headers: {
-                'User-Agent': 'kimochi-map-test'
+                'User-Agent': 'Mozilla/5.0 (compatible; kimochi/1.0)'
             }
         });
 
@@ -245,15 +267,26 @@ async function testAmapAPI() {
                 const data = JSON.parse(response.data);
                 if (data.status === '1') {
                     log.success('✅ 高德地图API连接成功');
-                    log.info(`   测试区域: ${data.districts && data.districts[0] ? data.districts[0].name : '查询成功'}`);
+                    const regeocode = data.regeocode;
+                    if (regeocode && regeocode.formatted_address) {
+                        log.info(`   逆地理编码测试: ${regeocode.formatted_address}`);
+                    } else {
+                        log.info('   API响应: 逆地理编码查询成功');
+                    }
                     recordTest(true);
                 } else {
                     log.error(`❌ 高德地图API返回错误: ${data.info || data.infocode}`);
-                    log.info(`   错误详情: ${JSON.stringify(data).substring(0, 200)}`);
+                    log.info(`   错误代码: ${data.infocode}`);
                     
-                    // 如果是签名错误，提供解决建议
-                    if (data.info && data.info.includes('SIGNATURE')) {
-                        log.warning('   💡 建议: 检查API密钥是否正确，或联系高德客服验证账号状态');
+                    // 提供具体的错误建议
+                    if (data.infocode === '10001') {
+                        log.warning('   💡 建议: API密钥不存在或过期，请检查AMAP_API_KEY配置');
+                    } else if (data.infocode === '10002') {
+                        log.warning('   💡 建议: 没有权限使用相应的服务或者请求接口的路径拼写错误');
+                    } else if (data.infocode === '10003') {
+                        log.warning('   💡 建议: 访问已超出日访问量，请升级API配额');
+                    } else {
+                        log.warning('   💡 建议: 请检查API密钥权限或联系高德客服');
                     }
                     recordTest(false);
                 }
