@@ -391,23 +391,36 @@ deploy_github() {
         
         # 创建生产环境配置
         if [ ! -f '.env.prod.local' ]; then
-            echo '创建默认生产环境配置...'
-            cat > .env.prod.local << 'EOL'
-NODE_ENV=\"production\"
-DATABASE_URL=\"file:./prisma/production.db\"
-JWT_SECRET=\"\$(openssl rand -hex 32)\"
-PORT=\"3000\"
-NEXT_PUBLIC_APP_NAME=\"kimochi心晴\"
-DOMAIN=\"47.104.8.84\"
-DOMAINS=\"47.104.8.84,kimochi.space\"
-SUPER_ADMIN_EMAIL=\"admin@kimochi.space\"
-SUPER_ADMIN_PASSWORD=\"kimochi@2025\"
-SUPER_ADMIN_NAME=\"超级管理员\"
-NEXT_PUBLIC_DISABLE_VERIFICATION_CODE=\"1\"
-DISABLE_VERIFICATION_CODE=\"1\"
-DISABLE_WECHAT_WEB_OAUTH=\"1\"
-NEXT_PUBLIC_ENABLE_OLD_EMAIL_UNAVAILABLE=\"1\"
+            echo '创建生产环境配置...'
+            if [ -f 'config/environments/env.production' ]; then
+                log_info "使用生产环境配置模板..."
+                cp config/environments/env.production .env.prod.local
+                
+                # 生成JWT密钥并替换占位符
+                JWT_SECRET=$(openssl rand -hex 32)
+                sed -i "s/GENERATE_RANDOM_64_CHAR_STRING/$JWT_SECRET/" .env.prod.local
+                
+                log_success "生产环境配置已创建，基于模板: config/environments/env.production"
+            else
+                log_warning "配置模板不存在，使用默认配置..."
+                # 备用方案：如果模板不存在，使用简化配置（无转义字符）
+                cat > .env.prod.local << 'EOL'
+NODE_ENV=production
+DATABASE_URL=file:./prisma/production.db
+JWT_SECRET=$(openssl rand -hex 32)
+PORT=3000
+NEXT_PUBLIC_APP_NAME=kimochi心晴
+DOMAIN=47.104.8.84
+DOMAINS=47.104.8.84,kimochi.space
+SUPER_ADMIN_EMAIL=admin@kimochi.space
+SUPER_ADMIN_PASSWORD=kimochi@2025
+SUPER_ADMIN_NAME=超级管理员
+NEXT_PUBLIC_DISABLE_VERIFICATION_CODE=1
+DISABLE_VERIFICATION_CODE=1
+DISABLE_WECHAT_WEB_OAUTH=1
+NEXT_PUBLIC_ENABLE_OLD_EMAIL_UNAVAILABLE=1
 EOL
+            fi
         fi
         
         # 安装依赖
