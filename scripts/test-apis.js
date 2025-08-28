@@ -239,12 +239,51 @@ async function testQWeatherAPI() {
     }
 }
 
+// 高德地图API数字签名工具
+function generateAmapSignature(params, privateKey) {
+    const crypto = require('crypto');
+    
+    // 对参数按key进行字典序排序
+    const sortedKeys = Object.keys(params).sort();
+    
+    // 按照排序后的顺序拼接参数
+    const paramString = sortedKeys
+        .map(key => `${key}=${params[key]}`)
+        .join('&');
+    
+    // 在拼接后的字符串末尾加上私钥
+    const stringToSign = paramString + privateKey;
+    
+    // 使用MD5算法计算签名
+    const signature = crypto.createHash('md5').update(stringToSign).digest('hex');
+    
+    return signature;
+}
+
+function buildAmapUrl(baseUrl, params, privateKey) {
+    let allParams = { ...params };
+    
+    // 如果有私钥，添加数字签名
+    if (privateKey) {
+        const signature = generateAmapSignature(params, privateKey);
+        allParams.sig = signature;
+    }
+    
+    // 构建URL
+    const queryString = Object.entries(allParams)
+        .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+        .join('&');
+    
+    return `${baseUrl}?${queryString}`;
+}
+
 // 4. 测试高德地图API
 async function testAmapAPI() {
     log.step('测试高德地图API服务...');
     
     try {
         const apiKey = process.env.AMAP_API_KEY;
+        const privateKey = process.env.AMAP_SECRET_KEY;
         
         if (!apiKey) {
             log.warning('高德地图API Key未配置，跳过测试');
@@ -252,8 +291,18 @@ async function testAmapAPI() {
             return;
         }
 
-        // 使用高德地图静态API测试（无需签名）
-        const testUrl = `https://restapi.amap.com/v3/geocode/regeo?location=116.397428,39.90923&key=${apiKey}&radius=1000&extensions=all`;
+        // API参数
+        const params = {
+            key: apiKey,
+            location: '116.397428,39.90923',
+            radius: '1000',
+            extensions: 'all'
+        };
+
+        // 构建URL（支持数字签名）
+        const testUrl = buildAmapUrl('https://restapi.amap.com/v3/geocode/regeo', params, privateKey);
+        
+        log.info(`   测试方式: ${privateKey ? '数字签名模式' : '普通模式'}`);
 
         const response = await makeRequest(testUrl, {
             method: 'GET',
