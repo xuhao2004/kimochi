@@ -40,9 +40,29 @@ const ENVIRONMENT = {
 
 // 自动检测环境
 function getEnvironment() {
-  // 可以通过编译时环境变量或手动切换
-  const env = wx.getStorageSync('miniprogram_env') || 'production';
-  return ENVIRONMENT[env] || ENVIRONMENT.production;
+  // 开发模式下默认使用开发环境，除非手动切换
+  let env = wx.getStorageSync('miniprogram_env');
+  
+  // 如果没有设置环境，根据开发工具判断
+  if (!env) {
+    try {
+      const accountInfo = wx.getAccountInfoSync();
+      // 在开发工具中默认使用开发环境
+      if (accountInfo.miniProgram.envVersion === 'develop') {
+        env = 'development';
+        wx.setStorageSync('miniprogram_env', env);
+        console.log('🔧 自动设置为开发环境');
+      } else {
+        env = 'production';
+      }
+    } catch (error) {
+      env = 'production'; // 临时使用生产环境，确保API可用
+      wx.setStorageSync('miniprogram_env', env);
+    }
+  }
+  
+  console.log(`🌐 当前环境: ${env}`);
+  return ENVIRONMENT[env] || ENVIRONMENT.development;
 }
 
 const currentEnv = getEnvironment();

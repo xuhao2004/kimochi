@@ -18,7 +18,7 @@
     "coverView": true,
     "es6": true,
     "postcss": true,
-    "minified": true,
+    "minified": false,
     "enhance": false,
     "showShadowRootInWxmlPanel": true,
     "packNpmRelationList": [],

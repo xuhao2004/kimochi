@@ -52,32 +52,32 @@ Page({
       });
     }
     
-    this.getWechatUserInfo();
+    // 注释：不在页面加载时自动获取用户信息
+    // 用户信息将在用户主动操作时获取
   },
 
-  // 获取微信用户信息
-  async getWechatUserInfo() {
-    try {
-      // 获取微信登录状态
-      const loginResult = await wx.checkSession();
-      
-      wx.getUserProfile({
-        desc: '用于账号绑定',
-        success: (res) => {
-          this.setData({
-            wechatInfo: {
-              nickName: res.userInfo.nickName,
-              avatarUrl: res.userInfo.avatarUrl
-            }
-          });
-        },
-        fail: (error) => {
-          console.log('获取用户信息失败:', error);
-        }
-      });
-    } catch (error) {
-      console.log('微信登录状态检查失败:', error);
-    }
+  // 获取微信用户信息（需要用户主动触发）
+  onGetWechatUserInfo() {
+    // 直接调用 wx.getUserProfile，确保是响应用户点击
+    wx.getUserProfile({
+      desc: '用于账号绑定',
+      success: (res) => {
+        this.setData({
+          wechatInfo: {
+            nickName: res.userInfo.nickName,
+            avatarUrl: res.userInfo.avatarUrl
+          }
+        });
+        console.log('获取用户信息成功');
+      },
+      fail: (error) => {
+        console.log('获取用户信息失败:', error);
+        wx.showToast({
+          title: '需要授权用户信息',
+          icon: 'none'
+        });
+      }
+    });
   },
 
   // 选择绑定类型

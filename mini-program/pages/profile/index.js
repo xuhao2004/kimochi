@@ -371,49 +371,67 @@ Page({
 
   // 显示开发者工具
   showDevTools() {
-    const currentEnv = EnvManager.getCurrentEnv();
-    const isDev = currentEnv.isDevelopment;
-    
-    wx.showActionSheet({
-      itemList: [
-        '环境信息',
-        isDev ? '切换到生产环境' : '切换到开发环境',
-        '调试面板',
-        '性能监控报告',
-        '查看网络日志',
-        '清除缓存',
-        '测试API连接'
-      ],
-      success: (res) => {
-        switch (res.tapIndex) {
-          case 0:
-            EnvManager.showEnvInfo();
-            break;
-          case 1:
-            if (isDev) {
-              EnvManager.switchToProduction();
-            } else {
-              EnvManager.switchToDevelopment();
+    try {
+      const currentEnv = EnvManager.getCurrentEnv();
+      const isDev = currentEnv && currentEnv.isDevelopment;
+      
+      wx.showActionSheet({
+        itemList: [
+          '环境信息',
+          isDev ? '切换到生产环境' : '切换到开发环境',
+          '调试面板',
+          '性能监控报告',
+          '查看网络日志',
+          '清除缓存',
+          '测试API连接'
+        ],
+        success: (res) => {
+          try {
+            switch (res.tapIndex) {
+              case 0:
+                EnvManager.showEnvInfo();
+                break;
+              case 1:
+                if (isDev) {
+                  EnvManager.switchToProduction();
+                } else {
+                  EnvManager.switchToDevelopment();
+                }
+                break;
+              case 2:
+                wx.navigateTo({ url: '/pages/debug/index' });
+                break;
+              case 3:
+                try {
+                  globalMonitor.showPerformanceReport();
+                } catch (error) {
+                  wx.showModal({
+                    title: '性能监控',
+                    content: '性能监控功能暂时不可用',
+                    showCancel: false
+                  });
+                }
+                break;
+              case 4:
+                this.showNetworkLogs();
+                break;
+              case 5:
+                this.clearAllCache();
+                break;
+              case 6:
+                this.testApiConnection();
+                break;
             }
-            break;
-          case 2:
-            wx.navigateTo({ url: '/pages/debug/index' });
-            break;
-          case 3:
-            globalMonitor.showPerformanceReport();
-            break;
-          case 4:
-            this.showNetworkLogs();
-            break;
-          case 5:
-            this.clearAllCache();
-            break;
-          case 6:
-            this.testApiConnection();
-            break;
+          } catch (error) {
+            console.error('开发者工具操作失败:', error);
+            showError('操作失败，请重试');
+          }
         }
-      }
-    });
+      });
+    } catch (error) {
+      console.error('显示开发者工具失败:', error);
+      showError('开发者工具暂时不可用');
+    }
   },
 
   // 显示网络日志

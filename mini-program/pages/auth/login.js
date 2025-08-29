@@ -23,46 +23,54 @@ Page({
   },
 
   // 微信登录
-  async onWeChatLogin() {
+  onWeChatLogin() {
     if (this.data.isLoading) return;
     
     hapticFeedback();
     this.setData({ isLoading: true });
 
-    try {
-      // 1. 获取微信登录码
-      const loginRes = await this.getWxLoginCode();
-      
-      // 2. 获取用户信息
-      const userInfo = await this.getUserProfile();
-      
-      // 3. 调用后端API
-      const response = await ApiService.auth.wxLogin(loginRes.code, userInfo);
-      
-      if (response.needBind) {
-        // 需要绑定现有账号
-        this.setData({
-          bindMode: true,
-          hasUserInfo: true,
-          userInfo: userInfo.userInfo
-        });
-        showError('检测到您已有账号，请绑定现有账号');
-      } else {
-        // 登录成功
-        ApiService.auth.setToken(response.token);
-        showSuccess('登录成功');
-        
-        // 延迟跳转，让用户看到成功提示
-        setTimeout(() => {
-          this.navigateBack();
-        }, 1500);
+    // 立即在用户点击时获取用户信息，避免异步延迟导致失效
+    wx.getUserProfile({
+      desc: '用于完善用户资料',
+      success: async (userProfileRes) => {
+        try {
+          // 1. 获取微信登录码
+          const loginRes = await this.getWxLoginCode();
+          
+          // 2. 调用后端API
+          const response = await ApiService.auth.wxLogin(loginRes.code, userProfileRes);
+          
+          if (response.needBind) {
+            // 需要绑定现有账号
+            this.setData({
+              bindMode: true,
+              hasUserInfo: true,
+              userInfo: userProfileRes.userInfo
+            });
+            showError('检测到您已有账号，请绑定现有账号');
+          } else {
+            // 登录成功
+            ApiService.auth.setToken(response.token);
+            showSuccess('登录成功');
+            
+            // 延迟跳转，让用户看到成功提示
+            setTimeout(() => {
+              this.navigateBack();
+            }, 1500);
+          }
+        } catch (error) {
+          console.error('微信登录失败:', error);
+          showError(error.message || '登录失败，请重试');
+        } finally {
+          this.setData({ isLoading: false });
+        }
+      },
+      fail: (error) => {
+        console.error('获取用户信息失败:', error);
+        showError('需要授权用户信息才能登录');
+        this.setData({ isLoading: false });
       }
-    } catch (error) {
-      console.error('微信登录失败:', error);
-      showError(error.message || '登录失败，请重试');
-    } finally {
-      this.setData({ isLoading: false });
-    }
+    });
   },
 
   // 获取微信登录码
@@ -75,16 +83,8 @@ Page({
     });
   },
 
-  // 获取用户信息
-  getUserProfile() {
-    return new Promise((resolve, reject) => {
-      wx.getUserProfile({
-        desc: '用于完善用户资料',
-        success: resolve,
-        fail: reject
-      });
-    });
-  },
+  // 注释：getUserProfile 方法已经被直接集成到 onWeChatLogin 中
+  // 避免异步调用导致的用户手势失效问题
 
   // 账号绑定
   async onBindAccount() {
