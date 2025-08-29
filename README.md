@@ -92,7 +92,7 @@ cd kimochi
 npm install
 
 # 3. 配置环境变量
-cp .env.example .env.local
+cp config/environments/env.development .env.local
 # 编辑 .env.local 填入必要配置
 
 # 4. 数据库初始化

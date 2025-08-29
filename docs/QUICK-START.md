@@ -37,8 +37,8 @@ cd kimochi
 npm install
 
 # 配置环境
-cp .env.example .env.local
-# 编辑.env.local填入必要配置
+cp config/environments/env.development .env.local
+# 编辑.env.local填入必要配置（如API密钥、数据库路径等）
 
 # 启动开发服务器
 npm run dev

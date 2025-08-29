@@ -14,9 +14,8 @@ config/
 ├── environments/
 │   ├── env.development    # 开发环境模板
 │   └── env.production     # 生产环境模板
-├── .env.example          # 配置示例
-├── .env.local            # 本地开发配置
-└── .env.prod.local       # 生产环境配置
+├── .env.local            # 本地开发配置（基于env.development生成）
+└── .env.prod.local       # 生产环境配置（基于env.production生成）
 ```
 
 ## 🔧 基础配置
@@ -177,11 +176,15 @@ WECHAT_SCOPE="snsapi_userinfo"
 
 ### 1. 使用配置模板生成
 ```bash
-# 生成生产环境配置
-./scripts/setup-environment.sh production
+# 从模板生成开发环境配置
+cp config/environments/env.development .env.local
 
-# 生成开发环境配置  
-./scripts/setup-environment.sh development
+# 从模板生成生产环境配置（服务器端）
+cp config/environments/env.production .env.prod.local
+
+# 或使用自动化脚本
+./scripts/setup-environment.sh development   # 本地开发
+./scripts/setup-environment.sh production    # 生产环境
 ```
 
 ### 2. 手动配置步骤
