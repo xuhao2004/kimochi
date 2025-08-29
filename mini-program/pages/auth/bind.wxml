@@ -1,2 +1,249 @@
 <!--pages/auth/bind.wxml-->
-<text>pages/auth/bind.wxml</text>
+<view class="container">
+  <!-- 微信用户信息 -->
+  <view wx:if="{{wechatInfo}}" class="wechat-info card">
+    <view class="card-body">
+      <view class="wechat-user">
+        <image 
+          class="wechat-avatar avatar avatar-lg"
+          src="{{wechatInfo.avatarUrl}}"
+          mode="aspectFill"
+        />
+        <view class="wechat-details">
+          <view class="wechat-name">{{wechatInfo.nickName}}</view>
+          <view class="wechat-desc">微信用户</view>
+        </view>
+        <view class="wechat-icon">
+          <text>💬</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 绑定类型选择 -->
+  <view wx:if="{{!bindType}}" class="bind-options-section">
+    <view class="section-header">
+      <text class="section-title">选择绑定方式</text>
+      <text class="section-desc">将微信账号与现有账号关联</text>
+    </view>
+    
+    <view class="bind-options">
+      <view 
+        wx:for="{{bindOptions}}" 
+        wx:key="id"
+        class="bind-option card card-hover fade-in"
+        style="animation-delay: {{index * 0.2}}s"
+        data-option="{{item}}"
+        bindtap="onBindTypeTap"
+      >
+        <view class="card-body">
+          <view class="option-content">
+            <view 
+              class="option-icon"
+              style="background: {{item.color}}20; color: {{item.color}};"
+            >
+              {{item.icon}}
+            </view>
+            <view class="option-info">
+              <view class="option-title">{{item.title}}</view>
+              <view class="option-desc">{{item.desc}}</view>
+            </view>
+            <view class="option-arrow">›</view>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 跳过按钮 -->
+    <view class="skip-section">
+      <button class="skip-btn btn btn-text" bindtap="onSkipBind">
+        暂时跳过
+      </button>
+    </view>
+  </view>
+
+  <!-- 步骤1: 输入信息 -->
+  <view wx:elif="{{bindType && step === 1}}" class="step-section">
+    <view class="step-header">
+      <view class="step-back" bindtap="onResetBindType">‹</view>
+      <view class="step-info">
+        <text class="step-title">{{bindType === 'email' ? '邮箱绑定' : '手机绑定'}}</text>
+        <text class="step-desc">步骤 1/3: 输入{{bindType === 'email' ? '邮箱地址' : '手机号'}}</text>
+      </view>
+    </view>
+    
+    <view class="form-section">
+      <view wx:if="{{bindType === 'email'}}" class="form-group">
+        <view class="form-label">
+          <text class="label-icon">📧</text>
+          <text class="label-text">邮箱地址</text>
+        </view>
+        <view class="form-input-wrapper">
+          <input 
+            class="form-input"
+            type="text"
+            placeholder="请输入邮箱地址"
+            value="{{form.email}}"
+            data-field="email"
+            bindinput="onInputChange"
+          />
+        </view>
+      </view>
+      
+      <view wx:else class="form-group">
+        <view class="form-label">
+          <text class="label-icon">📱</text>
+          <text class="label-text">手机号</text>
+        </view>
+        <view class="form-input-wrapper">
+          <input 
+            class="form-input"
+            type="number"
+            placeholder="请输入手机号"
+            value="{{form.phone}}"
+            data-field="phone"
+            bindinput="onInputChange"
+          />
+        </view>
+      </view>
+    </view>
+    
+    <view class="action-section">
+      <button 
+        class="action-btn btn btn-primary"
+        disabled="{{isLoading}}"
+        bindtap="onSendCode"
+      >
+        <text wx:if="{{isLoading}}">发送中...</text>
+        <text wx:else>发送验证码</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 步骤2: 验证码 -->
+  <view wx:elif="{{step === 2}}" class="step-section">
+    <view class="step-header">
+      <view class="step-back" bindtap="onPrevStep">‹</view>
+      <view class="step-info">
+        <text class="step-title">验证{{bindType === 'email' ? '邮箱' : '手机号'}}</text>
+        <text class="step-desc">步骤 2/3: 输入验证码</text>
+      </view>
+    </view>
+    
+    <view class="verify-section">
+      <view class="verify-info">
+        <text class="verify-text">
+          验证码已发送至
+          <text class="verify-target">{{bindType === 'email' ? form.email : form.phone}}</text>
+        </text>
+      </view>
+      
+      <view class="code-input-section">
+        <view class="code-input-grid">
+          <input 
+            wx:for="{{6}}" 
+            wx:key="*this"
+            class="code-input"
+            type="number"
+            maxlength="1"
+            value="{{form.verificationCode[index] || ''}}"
+          />
+        </view>
+        <input 
+          class="code-hidden-input"
+          type="number"
+          maxlength="6"
+          value="{{form.verificationCode}}"
+          data-field="verificationCode"
+          bindinput="onInputChange"
+          bindblur="onCodeComplete"
+        />
+      </view>
+      
+      <view class="resend-section">
+        <button 
+          class="resend-btn"
+          disabled="{{!canSendCode}}"
+          bindtap="onSendCode"
+        >
+          <text wx:if="{{!canSendCode}}">{{countdown}}s后重新发送</text>
+          <text wx:else>重新发送验证码</text>
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 步骤3: 设置密码 -->
+  <view wx:elif="{{step === 3}}" class="step-section">
+    <view class="step-header">
+      <view class="step-back" bindtap="onPrevStep">‹</view>
+      <view class="step-info">
+        <text class="step-title">设置密码</text>
+        <text class="step-desc">步骤 3/3: 完成绑定</text>
+      </view>
+    </view>
+    
+    <view class="form-section">
+      <view class="form-group">
+        <view class="form-label">
+          <text class="label-icon">🔒</text>
+          <text class="label-text">登录密码</text>
+        </view>
+        <view class="form-input-wrapper">
+          <input 
+            class="form-input"
+            type="{{showPassword ? 'text' : 'password'}}"
+            placeholder="请输入密码（至少6位）"
+            value="{{form.password}}"
+            data-field="password"
+            bindinput="onInputChange"
+          />
+          <view class="password-toggle" bindtap="onPasswordToggle">
+            <text>{{showPassword ? '🙈' : '👁️'}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="password-tips">
+        <text class="tips-text">• 密码长度至少6位</text>
+        <text class="tips-text">• 建议包含数字和字母</text>
+      </view>
+    </view>
+    
+    <view class="agreement-section">
+      <view class="agreement-text">
+        绑定账号即表示同意
+        <text class="agreement-link" bindtap="onAgreementTap">《用户协议》</text>
+      </view>
+    </view>
+    
+    <view class="action-section">
+      <button 
+        class="action-btn btn btn-primary"
+        disabled="{{isLoading}}"
+        bindtap="onCompleteBind"
+      >
+        <text wx:if="{{isLoading}}">绑定中...</text>
+        <text wx:else>完成绑定</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 帮助按钮 -->
+  <view class="help-section">
+    <button class="help-btn btn btn-text" bindtap="onGetHelp">
+      <text class="help-text">🤔 需要帮助？</text>
+    </button>
+  </view>
+
+  <!-- 加载遮罩 -->
+  <view wx:if="{{isLoading}}" class="loading-overlay">
+    <view class="loading-content">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">处理中...</text>
+    </view>
+  </view>
+
+  <!-- 底部安全区域 -->
+  <view class="safe-area"></view>
+</view>

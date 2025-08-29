@@ -4,4 +4,533 @@
   background: var(--background-primary);
   min-height: 100vh;
   padding: 32rpx;
+  position: relative;
+}
+
+/* 微信用户信息 */
+.wechat-info {
+  margin-bottom: 48rpx;
+  background: linear-gradient(135deg, #07c160, #38ef7d);
+  color: white;
+}
+
+.wechat-user {
+  display: flex;
+  align-items: center;
+  padding: 32rpx;
+}
+
+.wechat-avatar {
+  margin-right: 24rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.wechat-details {
+  flex: 1;
+}
+
+.wechat-name {
+  font-size: 36rpx;
+  font-weight: 600;
+  margin-bottom: 6rpx;
+}
+
+.wechat-desc {
+  font-size: 28rpx;
+  opacity: 0.8;
+}
+
+.wechat-icon {
+  font-size: 48rpx;
+  opacity: 0.8;
+}
+
+/* 区域标题 */
+.section-header {
+  text-align: center;
+  margin-bottom: 48rpx;
+}
+
+.section-title {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.section-desc {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  display: block;
+}
+
+/* 绑定选项 */
+.bind-options {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  margin-bottom: 48rpx;
+}
+
+.bind-option {
+  transition: all 0.3s ease;
+  border: 2rpx solid transparent;
+}
+
+.bind-option:active {
+  transform: scale(0.98);
+  border-color: var(--primary-color)40;
+}
+
+.option-content {
+  display: flex;
+  align-items: center;
+  padding: 40rpx 32rpx;
+  gap: 32rpx;
+}
+
+.option-icon {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  flex-shrink: 0;
+}
+
+.option-info {
+  flex: 1;
+}
+
+.option-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8rpx;
+}
+
+.option-desc {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.option-arrow {
+  font-size: 48rpx;
+  color: var(--text-tertiary);
+}
+
+/* 跳过按钮 */
+.skip-section {
+  text-align: center;
+  margin-bottom: 32rpx;
+}
+
+.skip-btn {
+  color: var(--text-secondary);
+  font-size: 32rpx;
+}
+
+/* 步骤区域 */
+.step-section {
+  animation: slideInRight 0.4s ease;
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 48rpx;
+  gap: 24rpx;
+}
+
+.step-back {
+  width: 72rpx;
+  height: 72rpx;
+  background: var(--background-secondary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.step-back:active {
+  background: var(--background-tertiary);
+  transform: scale(0.9);
+}
+
+.step-info {
+  flex: 1;
+}
+
+.step-title {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.step-desc {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  display: block;
+}
+
+/* 表单区域 */
+.form-section {
+  margin-bottom: 48rpx;
+}
+
+.form-group {
+  margin-bottom: 32rpx;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.label-icon {
+  font-size: 32rpx;
+}
+
+.label-text {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.form-input-wrapper {
+  position: relative;
+  background: var(--background-secondary);
+  border-radius: var(--radius-large);
+  border: 2rpx solid transparent;
+  transition: all 0.2s ease;
+}
+
+.form-input-wrapper:focus-within {
+  border-color: var(--primary-color);
+  background: var(--background-primary);
+}
+
+.form-input {
+  width: 100%;
+  padding: 28rpx 32rpx;
+  font-size: 32rpx;
+  color: var(--text-primary);
+  background: transparent;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 32rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 32rpx;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.password-toggle:active {
+  transform: translateY(-50%) scale(0.9);
+}
+
+.password-tips {
+  margin-top: 16rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.tips-text {
+  font-size: 24rpx;
+  color: var(--text-tertiary);
+}
+
+/* 验证码区域 */
+.verify-section {
+  text-align: center;
+}
+
+.verify-info {
+  margin-bottom: 48rpx;
+}
+
+.verify-text {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.verify-target {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.code-input-section {
+  margin-bottom: 48rpx;
+  position: relative;
+}
+
+.code-input-grid {
+  display: flex;
+  gap: 16rpx;
+  justify-content: center;
+}
+
+.code-input {
+  width: 80rpx;
+  height: 80rpx;
+  background: var(--background-secondary);
+  border: 2rpx solid var(--border-color);
+  border-radius: var(--radius-large);
+  text-align: center;
+  font-size: 36rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.code-input:focus {
+  border-color: var(--primary-color);
+  background: var(--background-primary);
+}
+
+.code-hidden-input {
+  position: absolute;
+  left: -9999rpx;
+  opacity: 0;
+}
+
+.resend-section {
+  margin-top: 32rpx;
+}
+
+.resend-btn {
+  background: none;
+  color: var(--primary-color);
+  font-size: 28rpx;
+  padding: 16rpx 32rpx;
+  transition: all 0.2s ease;
+}
+
+.resend-btn:disabled {
+  color: var(--text-tertiary);
+}
+
+.resend-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+/* 协议区域 */
+.agreement-section {
+  text-align: center;
+  margin-bottom: 32rpx;
+}
+
+.agreement-text {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+}
+
+.agreement-link {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+/* 操作按钮 */
+.action-section {
+  margin-bottom: 48rpx;
+}
+
+.action-btn {
+  width: 100%;
+  padding: 32rpx;
+  font-size: 36rpx;
+  font-weight: 600;
+  border-radius: var(--radius-xl);
+  transition: all 0.2s ease;
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  transform: none;
+}
+
+.action-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* 帮助区域 */
+.help-section {
+  text-align: center;
+  margin-bottom: 32rpx;
+}
+
+.help-btn {
+  padding: 16rpx 32rpx;
+  font-size: 28rpx;
+  color: var(--text-secondary);
+}
+
+.help-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+}
+
+/* 加载遮罩 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.loading-content {
+  background: var(--background-secondary);
+  padding: 48rpx 64rpx;
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.loading-spinner {
+  width: 48rpx;
+  height: 48rpx;
+  border: 4rpx solid var(--border-color);
+  border-top: 4rpx solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+}
+
+/* 响应式适配 */
+@media screen and (max-width: 480rpx) {
+  .container {
+    padding: 24rpx;
+  }
+  
+  .wechat-user {
+    padding: 24rpx;
+  }
+  
+  .option-content {
+    padding: 32rpx 24rpx;
+    gap: 24rpx;
+  }
+  
+  .option-icon {
+    width: 80rpx;
+    height: 80rpx;
+    font-size: 40rpx;
+  }
+  
+  .code-input-grid {
+    gap: 12rpx;
+  }
+  
+  .code-input {
+    width: 72rpx;
+    height: 72rpx;
+    font-size: 32rpx;
+  }
+}
+
+/* 动画效果 */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30rpx);
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 特殊交互效果 */
+.bind-option {
+  background: var(--background-secondary);
+}
+
+.bind-option:active {
+  background: var(--background-tertiary);
+}
+
+/* 验证码输入动画 */
+.code-input {
+  animation: codeInputPop 0.2s ease;
+}
+
+@keyframes codeInputPop {
+  0% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+/* 进度指示器 */
+.step-header::after {
+  content: '';
+  position: absolute;
+  bottom: -16rpx;
+  left: 96rpx;
+  right: 0;
+  height: 4rpx;
+  background: var(--border-color);
+  border-radius: 2rpx;
+}
+
+.step-section[data-step="1"]::after {
+  width: 33.33%;
+  background: var(--primary-color);
+}
+
+.step-section[data-step="2"]::after {
+  width: 66.66%;
+  background: var(--primary-color);
+}
+
+.step-section[data-step="3"]::after {
+  width: 100%;
+  background: var(--success-color);
 }

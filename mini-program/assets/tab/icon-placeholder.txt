@@ -1,0 +1,31 @@
+# TabBar 图标占位符
+
+由于无法在命令行中直接创建图片文件，请手动创建以下图标：
+
+## 需要的图标文件 (81px × 81px PNG)
+
+### 🏠 首页
+- home.png (灰色房子图标)
+- home-active.png (蓝色房子图标)
+
+### 📊 测评  
+- assessment.png (灰色图表图标)
+- assessment-active.png (蓝色图表图标)
+
+### 💭 心情墙
+- wall.png (灰色对话泡泡图标)
+- wall-active.png (蓝色对话泡泡图标)
+
+### 💬 消息
+- message.png (灰色消息图标)
+- message-active.png (蓝色消息图标)
+
+### 👤 我的
+- profile.png (灰色用户图标)
+- profile-active.png (蓝色用户图标)
+
+## 设计规范
+- 线条粗细：2px
+- 圆角：2px
+- 颜色：未选中 #8e8e93，选中 #007AFF
+- 背景：透明

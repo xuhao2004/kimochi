@@ -1,2 +1,97 @@
 <!--pages/settings/index.wxml-->
-<text>pages/settings/index.wxml</text>
+<view class="container">
+  <!-- 用户信息区域 -->
+  <view wx:if="{{isLoggedIn}}" class="user-section card">
+    <view class="card-body">
+      <view class="user-info">
+        <view class="user-avatar">
+          <text class="avatar-icon">👤</text>
+        </view>
+        <view class="user-details">
+          <view class="user-name">已登录用户</view>
+          <view class="user-desc">管理您的应用设置</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 基础设置 -->
+  <view class="settings-section">
+    <view class="section-header">
+      <text class="section-title">基础设置</text>
+    </view>
+    
+    <view class="settings-list">
+      <view 
+        wx:for="{{settings}}" 
+        wx:key="id"
+        class="setting-item card card-hover"
+        data-setting="{{item}}"
+        bindtap="{{item.type === 'switch' ? '' : 'onSettingTap'}}"
+      >
+        <view class="card-body">
+          <view class="setting-content">
+            <view class="setting-icon">{{item.icon}}</view>
+            <view class="setting-info">
+              <view class="setting-title">{{item.title}}</view>
+              <view class="setting-desc">{{item.desc}}</view>
+              <view wx:if="{{item.value && item.type !== 'switch'}}" class="setting-value">
+                {{item.value}}
+              </view>
+            </view>
+            <view class="setting-action">
+              <switch 
+                wx:if="{{item.type === 'switch'}}"
+                checked="{{item.value}}"
+                data-setting="{{item}}"
+                bindchange="onSwitchChange"
+              />
+              <text wx:elif="{{item.type === 'arrow'}}" class="arrow">›</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 调试设置 (仅调试模式显示) -->
+  <view wx:if="{{showDebugMode}}" class="debug-section">
+    <view class="section-header">
+      <text class="section-title debug-title">🔧 调试模式</text>
+    </view>
+    
+    <view class="settings-list">
+      <view 
+        wx:for="{{debugSettings}}" 
+        wx:key="id"
+        class="setting-item card card-hover {{item.dangerous ? 'dangerous' : ''}}"
+        data-setting="{{item}}"
+        bindtap="onDebugSettingTap"
+      >
+        <view class="card-body">
+          <view class="setting-content">
+            <view class="setting-icon">{{item.icon}}</view>
+            <view class="setting-info">
+              <view class="setting-title">{{item.title}}</view>
+              <view class="setting-desc">{{item.desc}}</view>
+            </view>
+            <view class="setting-action">
+              <text class="arrow">›</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 版本信息 -->
+  <view class="version-section">
+    <view class="version-info" bindlongpress="onVersionLongPress">
+      <text class="version-text">kimochi心晴 v{{version}}</text>
+      <text class="version-desc">长按开启调试模式</text>
+    </view>
+  </view>
+
+  <!-- 底部安全区域 -->
+  <view class="safe-area"></view>
+</view>

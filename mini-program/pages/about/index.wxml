@@ -1,2 +1,181 @@
 <!--pages/about/index.wxml-->
-<text>pages/about/index.wxml</text>
+<view class="container">
+  <!-- 应用信息 -->
+  <view class="app-info-section card">
+    <view class="card-body">
+      <view class="app-header">
+        <view class="app-logo" bindtap="onLogoTap" bindlongpress="onLogoLongPress">
+          <text class="logo-icon">{{appInfo.logo}}</text>
+        </view>
+        <view class="app-details">
+          <view class="app-name">{{appInfo.name}}</view>
+          <view class="app-version">Version {{appInfo.version}}</view>
+          <view class="app-description">{{appInfo.description}}</view>
+        </view>
+      </view>
+      
+      <!-- 统计数据 -->
+      <view class="statistics">
+        <view 
+          class="stat-item"
+          data-stat="users"
+          data-value="{{statistics.users}}"
+          bindtap="onStatTap"
+        >
+          <text class="stat-value">{{statistics.users}}</text>
+          <text class="stat-label">用户</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view 
+          class="stat-item"
+          data-stat="assessments"
+          data-value="{{statistics.assessments}}"
+          bindtap="onStatTap"
+        >
+          <text class="stat-value">{{statistics.assessments}}</text>
+          <text class="stat-label">测评</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view 
+          class="stat-item"
+          data-stat="posts"
+          data-value="{{statistics.posts}}"
+          bindtap="onStatTap"
+        >
+          <text class="stat-value">{{statistics.posts}}</text>
+          <text class="stat-label">动态</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view 
+          class="stat-item"
+          data-stat="uptime"
+          data-value="{{statistics.uptime}}"
+          bindtap="onStatTap"
+        >
+          <text class="stat-value">{{statistics.uptime}}</text>
+          <text class="stat-label">可用性</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 核心功能 -->
+  <view class="features-section">
+    <view class="section-header">
+      <text class="section-title">核心功能</text>
+    </view>
+    
+    <view class="features-grid">
+      <view 
+        wx:for="{{features}}" 
+        wx:key="title"
+        class="feature-card card card-hover fade-in"
+        style="animation-delay: {{index * 0.1}}s"
+        data-feature="{{item}}"
+        bindtap="onFeatureTap"
+      >
+        <view class="card-body">
+          <view class="feature-icon">{{item.icon}}</view>
+          <view class="feature-title">{{item.title}}</view>
+          <view class="feature-desc">{{item.desc}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 开发团队 -->
+  <view class="team-section">
+    <view class="section-header">
+      <text class="section-title">开发团队</text>
+    </view>
+    
+    <view class="team-list">
+      <view 
+        wx:for="{{team}}" 
+        wx:key="name"
+        class="team-member card card-hover"
+        data-member="{{item}}"
+        bindtap="onTeamMemberTap"
+      >
+        <view class="card-body">
+          <view class="member-content">
+            <view class="member-avatar">{{item.avatar}}</view>
+            <view class="member-info">
+              <view class="member-name">{{item.name}}</view>
+              <view class="member-role">{{item.role}}</view>
+              <view class="member-desc">{{item.desc}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 相关链接 -->
+  <view class="links-section">
+    <view class="section-header">
+      <text class="section-title">相关链接</text>
+    </view>
+    
+    <view class="links-list">
+      <view 
+        wx:for="{{links}}" 
+        wx:key="id"
+        class="link-item card card-hover"
+        data-link="{{item}}"
+        bindtap="onLinkTap"
+      >
+        <view class="card-body">
+          <view class="link-content">
+            <view class="link-icon">{{item.icon}}</view>
+            <view class="link-title">{{item.title}}</view>
+            <view class="link-arrow">›</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 版本更新日志 -->
+  <view class="changelog-section">
+    <view class="section-header">
+      <text class="section-title">版本历史</text>
+    </view>
+    
+    <view class="changelog-list">
+      <view 
+        wx:for="{{changelog}}" 
+        wx:key="version"
+        class="changelog-item card card-hover"
+        data-changelog="{{item}}"
+        bindtap="onChangelogTap"
+      >
+        <view class="card-body">
+          <view class="changelog-header">
+            <view class="changelog-version">v{{item.version}}</view>
+            <view class="changelog-date">{{item.date}}</view>
+          </view>
+          <view class="changelog-summary">
+            <text wx:for="{{item.changes}}" wx:key="*this" class="change-item">{{item}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分享按钮 -->
+  <view class="share-section">
+    <button class="share-btn btn btn-primary" bindtap="onShareApp">
+      <text class="share-text">📤 分享应用</text>
+    </button>
+  </view>
+
+  <!-- 版权信息 -->
+  <view class="copyright-section">
+    <text class="copyright-text">© 2024 kimochi心晴. All rights reserved.</text>
+    <text class="copyright-desc">用心关照每一份情绪</text>
+  </view>
+
+  <!-- 底部安全区域 -->
+  <view class="safe-area"></view>
+</view>
