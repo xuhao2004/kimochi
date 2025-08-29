@@ -1,0 +1,8 @@
+/* pages/messages/chat.wxss */
+
+.container {
+  background: var(--background-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

@@ -1,0 +1,7 @@
+/* pages/message-wall/create.wxss */
+
+.container {
+  background: var(--background-primary);
+  min-height: 100vh;
+  padding: 32rpx;
+}

@@ -20,39 +20,29 @@
   ],
   "tabBar": {
     "color": "#8e8e93",
-    "selectedColor": "#007AFF",
+    "selectedColor": "#007AFF", 
     "backgroundColor": "#fafafa",
     "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/home/index",
-        "text": "首页",
-        "iconPath": "assets/tab/home.png",
-        "selectedIconPath": "assets/tab/home-active.png"
+        "text": "首页"
       },
       {
-        "pagePath": "pages/assessments/index", 
-        "text": "测评",
-        "iconPath": "assets/tab/assessment.png",
-        "selectedIconPath": "assets/tab/assessment-active.png"
+        "pagePath": "pages/assessments/index",
+        "text": "测评"
       },
       {
         "pagePath": "pages/message-wall/index",
-        "text": "心情墙",
-        "iconPath": "assets/tab/wall.png",
-        "selectedIconPath": "assets/tab/wall-active.png"
+        "text": "心情墙"
       },
       {
         "pagePath": "pages/messages/index",
-        "text": "消息",
-        "iconPath": "assets/tab/message.png",
-        "selectedIconPath": "assets/tab/message-active.png"
+        "text": "消息"
       },
       {
-        "pagePath": "pages/profile/index",
-        "text": "我的",
-        "iconPath": "assets/tab/profile.png",
-        "selectedIconPath": "assets/tab/profile-active.png"
+        "pagePath": "pages/profile/index", 
+        "text": "我的"
       }
     ]
   },
@@ -75,9 +65,8 @@
       "desc": "用于上传图片和个人头像"
     }
   },
-  "requiredPrivateInfos": ["getLocation", "chooseLocation", "chooseMedia"],
-  "style": "v2",
-  "componentFramework": "glass-easel",
+  "requiredPrivateInfos": ["getLocation", "chooseLocation"],
+  "style": "v2", 
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents",
   "darkmode": true,
