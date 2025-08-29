@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "调试面板",
+  "navigationBarTextStyle": "white",
+  "navigationBarBackgroundColor": "#FF9500",
+  "backgroundColor": "#f7f8fa",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "usingComponents": {}
+}

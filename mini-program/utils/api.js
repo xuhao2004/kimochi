@@ -1,4 +1,5 @@
 // API 配置和工具函数
+const { performance, errorManager } = require('./performance');
 
 // 环境配置
 const ENVIRONMENT = {
@@ -72,65 +73,108 @@ class API {
       data = {},
       header = {},
       showLoading = true,
-      loadingText = '加载中...'
+      loadingText = '加载中...',
+      cache = false,
+      cacheTTL = 5 * 60 * 1000, // 5分钟缓存
+      enableRetry = true
     } = options;
 
-    if (showLoading) {
-      wx.showLoading({ title: loadingText, mask: true });
+    // 生成缓存键
+    const cacheKey = cache ? `${method}:${url}:${JSON.stringify(data)}` : null;
+    
+    // 检查缓存
+    if (cache && method === 'GET') {
+      const cached = performance.getCache(cacheKey);
+      if (cached) {
+        return cached;
+      }
     }
 
-    const requestHeader = {
-      'Content-Type': 'application/json',
-      ...header
-    };
-
-    if (this.token) {
-      requestHeader['Authorization'] = `Bearer ${this.token}`;
-    }
-
+    // 请求去重
+    const requestKey = `${method}:${url}:${JSON.stringify(data)}`;
+    
     try {
-      const response = await new Promise((resolve, reject) => {
-        wx.request({
-          url: `${this.baseURL}${url}`,
-          method,
-          data,
-          header: requestHeader,
-          success: resolve,
-          fail: reject
+      const response = await performance.dedupeRequest(requestKey, async () => {
+        performance.metrics.apiCalls++;
+
+        if (showLoading) {
+          wx.showLoading({ title: loadingText, mask: true });
+        }
+
+        const requestHeader = {
+          'Content-Type': 'application/json',
+          ...header
+        };
+
+        if (this.token) {
+          requestHeader['Authorization'] = `Bearer ${this.token}`;
+        }
+
+        const requestPromise = new Promise((resolve, reject) => {
+          wx.request({
+            url: `${this.baseURL}${url}`,
+            method,
+            data,
+            header: requestHeader,
+            timeout: 10000,
+            success: resolve,
+            fail: reject
+          });
         });
+
+        const response = await requestPromise;
+
+        if (showLoading) {
+          wx.hideLoading();
+        }
+
+        const { statusCode, data: responseData } = response;
+        
+        // 处理认证错误
+        if (statusCode === 401) {
+          const authError = new Error('Unauthorized');
+          authError.statusCode = 401;
+          throw authError;
+        }
+
+        // 处理其他HTTP错误
+        if (statusCode >= 400) {
+          const error = new Error(responseData?.message || `请求失败 (${statusCode})`);
+          error.statusCode = statusCode;
+          error.responseData = responseData;
+          throw error;
+        }
+
+        // 缓存成功响应
+        if (cache && method === 'GET') {
+          performance.setCache(cacheKey, responseData, cacheTTL);
+        }
+
+        return responseData;
       });
 
-      if (showLoading) {
-        wx.hideLoading();
-      }
-
-      const { statusCode, data: responseData } = response;
-      
-      // 处理认证错误
-      if (statusCode === 401) {
-        this.clearToken();
-        wx.showToast({ title: '请重新登录', icon: 'none' });
-        wx.switchTab({ url: '/pages/profile/index' });
-        throw new Error('Unauthorized');
-      }
-
-      // 处理其他HTTP错误
-      if (statusCode >= 400) {
-        const errorMsg = responseData?.message || `请求失败 (${statusCode})`;
-        wx.showToast({ title: errorMsg, icon: 'none' });
-        throw new Error(errorMsg);
-      }
-
-      return responseData;
+      return response;
     } catch (error) {
       if (showLoading) {
         wx.hideLoading();
       }
+
+      performance.metrics.errors++;
       
-      if (error.errMsg) {
-        wx.showToast({ title: '网络连接失败', icon: 'none' });
+      // 使用错误管理器处理错误
+      const errorResult = await errorManager.handleError(error, `API ${method} ${url}`, {
+        enableRetry,
+        retryFn: enableRetry && !error.statusCode ? () => this.request(options) : null,
+        silent: error.statusCode >= 400 // HTTP错误不重试
+      });
+
+      if (errorResult.needReauth) {
+        // 清除缓存中的认证相关数据
+        performance.clearCache('auth');
+        performance.clearCache('user');
+        this.clearToken();
       }
-      
+
       throw error;
     }
   }

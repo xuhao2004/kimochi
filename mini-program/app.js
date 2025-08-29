@@ -1,6 +1,8 @@
 // app.js
 const { api } = require('./utils/api');
 const { checkForUpdate } = require('./utils/util');
+const { globalMonitor } = require('./utils/monitor');
+const { errorManager } = require('./utils/performance');
 
 App({
   globalData: {
@@ -13,6 +15,13 @@ App({
 
   onLaunch(options) {
     console.log('小程序启动', options);
+    
+    // 启动性能监控 (仅开发环境)
+    const isDevelopment = wx.getStorageSync('miniprogram_env') === 'development';
+    if (isDevelopment) {
+      globalMonitor.startMonitoring();
+      console.log('🔍 开发环境：已启用性能监控');
+    }
     
     // 初始化系统信息
     this.initSystemInfo();
@@ -46,6 +55,9 @@ App({
 
   onError(error) {
     console.error('小程序错误:', error);
+    
+    // 使用错误管理器记录和处理错误
+    errorManager.handleError(error, 'Application', { silent: true });
     
     // 记录错误日志
     this.logError(error);

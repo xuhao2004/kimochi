@@ -1,0 +1,415 @@
+/* pages/debug/index.wxss */
+
+.container {
+  background: var(--background-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 调试头部 */
+.debug-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  background: linear-gradient(135deg, var(--warning-color), #FF6B35);
+  color: white;
+}
+
+.header-title {
+  flex: 1;
+}
+
+.title-text {
+  font-size: 40rpx;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.subtitle-text {
+  font-size: 28rpx;
+  opacity: 0.9;
+  display: block;
+}
+
+.header-actions {
+  display: flex;
+  gap: 16rpx;
+}
+
+.action-btn {
+  width: 72rpx;
+  height: 72rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.action-btn:active {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(0.9);
+}
+
+.action-icon {
+  font-size: 36rpx;
+}
+
+/* 标签栏 */
+.tabs-scroll {
+  white-space: nowrap;
+  background: var(--background-secondary);
+  border-bottom: 1rpx solid var(--border-color);
+}
+
+.tabs-list {
+  display: flex;
+  padding: 0 32rpx;
+}
+
+.tab-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 24rpx;
+  border-bottom: 4rpx solid transparent;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tab-item.active {
+  border-bottom-color: var(--warning-color);
+  color: var(--warning-color);
+}
+
+.tab-icon {
+  font-size: 28rpx;
+}
+
+.tab-name {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+/* 内容区域 */
+.content-scroll {
+  flex: 1;
+  padding: 32rpx;
+}
+
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.panel-section {
+  background: var(--background-secondary);
+  border: 2rpx solid var(--warning-color)30;
+}
+
+.section-header {
+  margin-bottom: 24rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 1rpx solid var(--border-color);
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* 指标网格 */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+}
+
+.metric-item {
+  background: var(--background-tertiary);
+  padding: 20rpx;
+  border-radius: var(--radius-medium);
+  text-align: center;
+}
+
+.metric-label {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.metric-value {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--primary-color);
+  display: block;
+}
+
+/* 统计项 */
+.api-stats,
+.cache-stats,
+.error-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx;
+  background: var(--background-tertiary);
+  border-radius: var(--radius-medium);
+}
+
+.stat-item.error {
+  background: var(--error-color)10;
+  border: 1rpx solid var(--error-color)30;
+}
+
+.stat-item.critical {
+  background: var(--error-color)20;
+  border: 2rpx solid var(--error-color);
+}
+
+.stat-label {
+  font-size: 28rpx;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.stat-item.error .stat-value,
+.stat-item.critical .stat-value {
+  color: var(--error-color);
+}
+
+/* 行为统计 */
+.behavior-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.stat-text {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  padding: 16rpx;
+  background: var(--background-tertiary);
+  border-radius: var(--radius-medium);
+}
+
+/* 错误显示 */
+.last-error {
+  background: var(--error-color)10;
+  padding: 24rpx;
+  border-radius: var(--radius-medium);
+  border: 1rpx solid var(--error-color)30;
+  margin-top: 16rpx;
+}
+
+.error-title {
+  font-size: 24rpx;
+  color: var(--error-color);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.error-message {
+  font-size: 26rpx;
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 8rpx;
+  word-break: break-all;
+}
+
+.error-time {
+  font-size: 22rpx;
+  color: var(--text-tertiary);
+  display: block;
+}
+
+/* 系统信息 */
+.system-info {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.info-group {
+  background: var(--background-tertiary);
+  padding: 24rpx;
+  border-radius: var(--radius-medium);
+}
+
+.group-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 16rpx;
+  padding-bottom: 8rpx;
+  border-bottom: 1rpx solid var(--border-color);
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid var(--border-color)50;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+}
+
+.info-value {
+  font-size: 26rpx;
+  color: var(--text-primary);
+  font-weight: 500;
+  max-width: 60%;
+  text-align: right;
+  word-break: break-all;
+}
+
+/* 操作按钮 */
+.api-actions,
+.cache-actions,
+.error-actions,
+.system-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 24rpx;
+}
+
+.debug-btn {
+  flex: 1;
+  background: var(--warning-color);
+  color: white;
+  border: none;
+  border-radius: var(--radius-medium);
+  padding: 20rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.debug-btn:active {
+  transform: scale(0.95);
+  background: #E6890A;
+}
+
+/* 非开发环境提示 */
+.not-dev-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 80rpx 32rpx;
+}
+
+.notice-content {
+  text-align: center;
+  background: var(--background-secondary);
+  border: 2rpx solid var(--border-color);
+}
+
+.notice-icon {
+  font-size: 120rpx;
+  margin-bottom: 24rpx;
+  opacity: 0.5;
+  display: block;
+}
+
+.notice-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.notice-desc {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  display: block;
+}
+
+/* 响应式适配 */
+@media screen and (max-width: 480rpx) {
+  .container {
+    font-size: 26rpx;
+  }
+  
+  .debug-header {
+    padding: 24rpx;
+  }
+  
+  .content-scroll {
+    padding: 24rpx;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .api-actions,
+  .cache-actions,
+  .error-actions {
+    flex-direction: column;
+    gap: 12rpx;
+  }
+  
+  .debug-btn {
+    width: 100%;
+  }
+}
+
+/* 特殊效果 */
+.debug-header {
+  box-shadow: 0 4rpx 20rpx rgba(255, 107, 53, 0.3);
+}
+
+.panel-section {
+  border-left: 6rpx solid var(--warning-color);
+}
+
+.tab-item:active {
+  background: var(--background-tertiary);
+}
+
+/* 数据为空的状态 */
+.empty-data {
+  text-align: center;
+  padding: 80rpx 40rpx;
+  color: var(--text-secondary);
+}
+
+.empty-data::before {
+  content: '📊';
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: 16rpx;
+  opacity: 0.5;
+}

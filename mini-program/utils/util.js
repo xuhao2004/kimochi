@@ -1,4 +1,5 @@
 // 工具函数集合
+const { performance } = require('./performance');
 
 /**
  * 格式化时间
@@ -371,6 +372,120 @@ const parseQuery = (url) => {
   return query;
 };
 
+/**
+ * 图片优化加载
+ */
+const optimizeImage = async (src, options = {}) => {
+  const { 
+    maxWidth = 750, 
+    maxHeight = 750, 
+    quality = 0.8
+  } = options;
+  
+  // 检查缓存
+  const cacheKey = `img:${src}:${maxWidth}x${maxHeight}`;
+  const cached = performance.getCache(cacheKey);
+  if (cached) {
+    return cached;
+  }
+  
+  try {
+    // 实际项目中可以实现图片压缩优化
+    const optimizedSrc = src;
+    
+    // 缓存优化后的图片地址
+    performance.setCache(cacheKey, optimizedSrc, 60 * 60 * 1000); // 1小时缓存
+    
+    return optimizedSrc;
+  } catch (error) {
+    console.error('图片优化失败:', error);
+    return src;
+  }
+};
+
+/**
+ * 数据分页处理
+ */
+const paginateData = (data, page = 1, limit = 10) => {
+  const offset = (page - 1) * limit;
+  const total = data.length;
+  const totalPages = Math.ceil(total / limit);
+  const items = data.slice(offset, offset + limit);
+  
+  return {
+    items,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+      hasMore: page < totalPages,
+      hasPrev: page > 1
+    }
+  };
+};
+
+/**
+ * 表单验证器
+ */
+const validator = {
+  required(value, message = '此字段为必填项') {
+    if (value === null || value === undefined || value === '') {
+      return { valid: false, message };
+    }
+    return { valid: true };
+  },
+  
+  email(value, message = '请输入正确的邮箱地址') {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      return { valid: false, message };
+    }
+    return { valid: true };
+  },
+  
+  phone(value, message = '请输入正确的手机号') {
+    const phoneRegex = /^1[3-9]\d{9}$/;
+    if (!phoneRegex.test(value)) {
+      return { valid: false, message };
+    }
+    return { valid: true };
+  }
+};
+
+/**
+ * 本地缓存管理
+ */
+const cacheManager = {
+  set(key, data, ttl = 5 * 60 * 1000) {
+    const expireTime = Date.now() + ttl;
+    const cacheData = { data, expireTime };
+    
+    try {
+      wx.setStorageSync(key, cacheData);
+    } catch (error) {
+      console.error('缓存设置失败:', error);
+    }
+  },
+  
+  get(key) {
+    try {
+      const cacheData = wx.getStorageSync(key);
+      
+      if (!cacheData) return null;
+      
+      if (Date.now() > cacheData.expireTime) {
+        wx.removeStorageSync(key);
+        return null;
+      }
+      
+      return cacheData.data;
+    } catch (error) {
+      return null;
+    }
+  }
+};
+
 module.exports = {
   formatTime,
   formatRelativeTime,
@@ -400,5 +515,11 @@ module.exports = {
   getSystemInfo,
   checkForUpdate,
   formatFileSize,
-  parseQuery
+  parseQuery,
+  
+  // 新增优化工具
+  optimizeImage,
+  paginateData,
+  validator,
+  cacheManager
 };

@@ -1,6 +1,6 @@
 // pages/home/index.js
 const { ApiService } = require('../../utils/api');
-const { formatRelativeTime, getCurrentLocation, showError, showSuccess, hapticFeedback } = require('../../utils/util');
+const { formatRelativeTime, getCurrentLocation, showError, showSuccess, hapticFeedback, cacheManager, optimizeImage, performanceMonitor } = require('../../utils/util');
 
 Page({
   data: {
@@ -139,12 +139,36 @@ Page({
 
   async getDailyQuote() {
     try {
+      performanceMonitor.start('LoadDailyQuote');
+      
+      // 检查缓存 (每日心语缓存1小时)
+      const cacheKey = 'daily_quote_' + new Date().toDateString();
+      const cached = cacheManager.get(cacheKey);
+      
+      if (cached) {
+        this.setData({ dailyQuote: cached });
+        performanceMonitor.end('LoadDailyQuote');
+        return;
+      }
+      
       const data = await ApiService.home.getDailyQuote();
-      this.setData({
-        dailyQuote: data.sentence || null
-      });
+      const quoteData = data.sentence || null;
+      
+      this.setData({ dailyQuote: quoteData });
+      
+      // 缓存结果
+      cacheManager.set(cacheKey, quoteData, 60 * 60 * 1000);
+      
+      performanceMonitor.end('LoadDailyQuote');
     } catch (error) {
       console.error('获取今日心语失败:', error);
+      // 使用默认心语
+      this.setData({
+        dailyQuote: {
+          content: '每一天都是新的开始，保持积极的心态。',
+          author: 'kimochi心晴'
+        }
+      });
     }
   },
 
@@ -187,6 +211,8 @@ Page({
 
   async getWeatherData() {
     try {
+      performanceMonitor.start('LoadWeather');
+      
       // 先尝试获取位置
       const location = await getCurrentLocation();
       
@@ -194,6 +220,19 @@ Page({
         'location.latitude': location.latitude,
         'location.longitude': location.longitude
       });
+
+      // 天气数据缓存15分钟
+      const cacheKey = `weather_${location.latitude}_${location.longitude}`;
+      const cached = cacheManager.get(cacheKey);
+      
+      if (cached) {
+        this.setData({
+          weather: cached,
+          'location.city': cached.locationName || this.data.location.city
+        });
+        performanceMonitor.end('LoadWeather');
+        return;
+      }
 
       // 获取天气数据
       const weather = await ApiService.home.getWeather(
@@ -205,10 +244,25 @@ Page({
         weather,
         'location.city': weather.locationName || this.data.location.city
       });
+      
+      // 缓存天气数据
+      cacheManager.set(cacheKey, weather, 15 * 60 * 1000);
+      
+      performanceMonitor.end('LoadWeather');
     } catch (error) {
       console.error('获取天气失败:', error);
       if (error.errMsg && error.errMsg.includes('auth deny')) {
         showError('需要位置权限才能获取天气信息');
+      } else {
+        // 使用默认天气信息
+        this.setData({
+          weather: {
+            summary: '无法获取天气',
+            temperatureC: '--',
+            humidity: '--',
+            locationName: '未知位置'
+          }
+        });
       }
     }
   },

@@ -1,5 +1,8 @@
 /**app.wxss**/
 
+/* 导入动画效果 */
+@import './styles/animations.wxss';
+
 /* ==================== 基础重置 ==================== */
 page {
   --primary-color: #007AFF;

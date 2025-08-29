@@ -1,0 +1,236 @@
+<!--pages/debug/index.wxml-->
+<view wx:if="{{isVisible}}" class="container">
+  <!-- 调试头部 -->
+  <view class="debug-header">
+    <view class="header-title">
+      <text class="title-text">🔧 开发调试面板</text>
+      <text class="subtitle-text">性能监控 & 错误诊断</text>
+    </view>
+    <view class="header-actions">
+      <view class="action-btn" bindtap="onRefresh">
+        <text class="action-icon">🔄</text>
+      </view>
+      <view class="action-btn" bindtap="onCopyDebugInfo">
+        <text class="action-icon">📋</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 标签栏 -->
+  <scroll-view class="tabs-scroll" scroll-x>
+    <view class="tabs-list">
+      <view 
+        wx:for="{{tabs}}" 
+        wx:key="id"
+        class="tab-item {{activeTab === item.id ? 'active' : ''}}"
+        data-tab="{{item.id}}"
+        bindtap="onTabTap"
+      >
+        <text class="tab-icon">{{item.icon}}</text>
+        <text class="tab-name">{{item.name}}</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 内容区域 -->
+  <scroll-view class="content-scroll" scroll-y>
+    <!-- 性能监控 -->
+    <view wx:if="{{activeTab === 'performance'}}" class="tab-content">
+      <view wx:if="{{performanceData}}" class="performance-panel">
+        <!-- 页面性能 -->
+        <view class="panel-section card">
+          <view class="card-body">
+            <view class="section-header">
+              <text class="section-title">📱 页面性能</text>
+            </view>
+            <view class="metrics-grid">
+              <view wx:for="{{performanceData.pagePerformance}}" wx:key="index" class="metric-item">
+                <text class="metric-label">{{index}}</text>
+                <text class="metric-value">{{item.avgLoadTime}}ms</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 用户行为 -->
+        <view class="panel-section card">
+          <view class="card-body">
+            <view class="section-header">
+              <text class="section-title">👤 用户行为</text>
+            </view>
+            <view class="behavior-stats">
+              <text class="stat-text">总操作: {{performanceData.userBehavior.totalActions}}</text>
+              <text class="stat-text">最后操作: {{performanceData.userBehavior.lastAction.action || '无'}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- API监控 -->
+    <view wx:if="{{activeTab === 'api'}}" class="tab-content">
+      <view wx:if="{{apiMetrics}}" class="api-panel">
+        <view class="panel-section card">
+          <view class="card-body">
+            <view class="section-header">
+              <text class="section-title">🔌 API统计</text>
+            </view>
+            <view class="api-stats">
+              <view class="stat-item">
+                <text class="stat-label">总请求</text>
+                <text class="stat-value">{{apiMetrics.apiCalls}}</text>
+              </view>
+              <view class="stat-item">
+                <text class="stat-label">缓存命中率</text>
+                <text class="stat-value">{{apiMetrics.cacheHitRate}}%</text>
+              </view>
+              <view class="stat-item">
+                <text class="stat-label">错误次数</text>
+                <text class="stat-value">{{apiMetrics.errors}}</text>
+              </view>
+              <view class="stat-item">
+                <text class="stat-label">活动请求</text>
+                <text class="stat-value">{{apiMetrics.activeRequests}}</text>
+              </view>
+            </view>
+            
+            <view class="api-actions">
+              <button class="debug-btn" bindtap="testApiConnection">测试连接</button>
+              <button class="debug-btn" bindtap="stressTest">压力测试</button>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 缓存管理 -->
+    <view wx:if="{{activeTab === 'cache'}}" class="tab-content">
+      <view wx:if="{{cacheInfo}}" class="cache-panel">
+        <view class="panel-section card">
+          <view class="card-body">
+            <view class="section-header">
+              <text class="section-title">💾 缓存统计</text>
+            </view>
+            <view class="cache-stats">
+              <view class="stat-item">
+                <text class="stat-label">存储使用</text>
+                <text class="stat-value">{{cacheInfo.storageSize}} / {{cacheInfo.storageLimit}}</text>
+              </view>
+              <view class="stat-item">
+                <text class="stat-label">使用率</text>
+                <text class="stat-value">{{cacheInfo.storageUsage}}%</text>
+              </view>
+              <view class="stat-item">
+                <text class="stat-label">内存缓存</text>
+                <text class="stat-value">{{cacheInfo.memoryCache}} 项</text>
+              </view>
+              <view class="stat-item">
+                <text class="stat-label">存储键数</text>
+                <text class="stat-value">{{cacheInfo.keys}}</text>
+              </view>
+            </view>
+            
+            <view class="cache-actions">
+              <button class="debug-btn" bindtap="clearAllCache">清除缓存</button>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 错误监控 -->
+    <view wx:if="{{activeTab === 'errors'}}" class="tab-content">
+      <view wx:if="{{errorInfo}}" class="error-panel">
+        <view class="panel-section card">
+          <view class="card-body">
+            <view class="section-header">
+              <text class="section-title">🐛 错误统计</text>
+            </view>
+            <view class="error-stats">
+              <view class="stat-item {{errorInfo.totalErrors > 0 ? 'error' : ''}}">
+                <text class="stat-label">总错误数</text>
+                <text class="stat-value">{{errorInfo.totalErrors}}</text>
+              </view>
+              <view class="stat-item {{errorInfo.criticalErrors > 0 ? 'critical' : ''}}">
+                <text class="stat-label">关键错误</text>
+                <text class="stat-value">{{errorInfo.criticalErrors}}</text>
+              </view>
+            </view>
+            
+            <view wx:if="{{errorInfo.lastError}}" class="last-error">
+              <text class="error-title">最近错误:</text>
+              <text class="error-message">{{errorInfo.lastError.message}}</text>
+              <text class="error-time">{{errorInfo.lastError.timestamp}}</text>
+            </view>
+            
+            <view class="error-actions">
+              <button class="debug-btn" bindtap="simulateError">模拟错误</button>
+              <button class="debug-btn" bindtap="resetMonitorData">重置数据</button>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 系统信息 -->
+    <view wx:if="{{activeTab === 'system'}}" class="tab-content">
+      <view wx:if="{{systemInfo}}" class="system-panel">
+        <view class="panel-section card">
+          <view class="card-body">
+            <view class="section-header">
+              <text class="section-title">⚙️ 系统信息</text>
+            </view>
+            <view class="system-info">
+              <view class="info-group">
+                <text class="group-title">应用信息</text>
+                <view class="info-item">
+                  <text class="info-label">版本</text>
+                  <text class="info-value">{{systemInfo.appVersion}}</text>
+                </view>
+                <view class="info-item">
+                  <text class="info-label">环境</text>
+                  <text class="info-value">{{systemInfo.environment}}</text>
+                </view>
+                <view class="info-item">
+                  <text class="info-label">API地址</text>
+                  <text class="info-value">{{systemInfo.apiBaseUrl}}</text>
+                </view>
+              </view>
+              
+              <view class="info-group">
+                <text class="group-title">设备信息</text>
+                <view class="info-item">
+                  <text class="info-label">系统</text>
+                  <text class="info-value">{{systemInfo.system}}</text>
+                </view>
+                <view class="info-item">
+                  <text class="info-label">微信版本</text>
+                  <text class="info-value">{{systemInfo.version}}</text>
+                </view>
+                <view class="info-item">
+                  <text class="info-label">屏幕尺寸</text>
+                  <text class="info-value">{{systemInfo.screenWidth}}x{{systemInfo.screenHeight}}</text>
+                </view>
+              </view>
+            </view>
+            
+            <view class="system-actions">
+              <button class="debug-btn" bindtap="switchEnvironment">切换环境</button>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</view>
+
+<!-- 非开发环境提示 -->
+<view wx:else class="not-dev-notice">
+  <view class="notice-content card">
+    <view class="card-body">
+      <view class="notice-icon">🚫</view>
+      <view class="notice-title">调试面板不可用</view>
+      <view class="notice-desc">请切换到开发环境后再使用调试功能</view>
+    </view>
+  </view>
+</view>

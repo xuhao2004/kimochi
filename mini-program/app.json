@@ -14,9 +14,10 @@
     "pages/profile/edit",
     "pages/auth/login",
     "pages/auth/bind",
-    "pages/scan/index",
+    "pages/scan/index", 
     "pages/settings/index",
-    "pages/about/index"
+    "pages/about/index",
+    "pages/debug/index"
   ],
   "tabBar": {
     "color": "#8e8e93",

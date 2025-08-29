@@ -1,6 +1,7 @@
 // pages/profile/index.js
 const { ApiService, EnvManager } = require('../../utils/api');
 const { showError, showSuccess, hapticFeedback, showConfirm, formatRelativeTime } = require('../../utils/util');
+const { globalMonitor } = require('../../utils/monitor');
 
 Page({
   data: {
@@ -377,6 +378,8 @@ Page({
       itemList: [
         '环境信息',
         isDev ? '切换到生产环境' : '切换到开发环境',
+        '调试面板',
+        '性能监控报告',
         '查看网络日志',
         '清除缓存',
         '测试API连接'
@@ -394,12 +397,18 @@ Page({
             }
             break;
           case 2:
-            this.showNetworkLogs();
+            wx.navigateTo({ url: '/pages/debug/index' });
             break;
           case 3:
-            this.clearAllCache();
+            globalMonitor.showPerformanceReport();
             break;
           case 4:
+            this.showNetworkLogs();
+            break;
+          case 5:
+            this.clearAllCache();
+            break;
+          case 6:
             this.testApiConnection();
             break;
         }
