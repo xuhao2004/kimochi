@@ -1,0 +1,138 @@
+<!--pages/messages/index.wxml-->
+<view class="container">
+  <!-- 头部标签 -->
+  <view class="tabs-section">
+    <view class="tabs-list">
+      <view 
+        wx:for="{{tabs}}" 
+        wx:key="id"
+        class="tab-item {{activeTab === item.id ? 'active' : ''}}"
+        data-tab="{{item.id}}"
+        bindtap="onTabTap"
+      >
+        <text class="tab-icon">{{item.icon}}</text>
+        <text class="tab-name">{{item.name}}</text>
+        <view wx:if="{{item.id === 'unread' && unreadCount > 0}}" class="tab-badge">
+          {{unreadCount > 99 ? '99+' : unreadCount}}
+        </view>
+      </view>
+    </view>
+    
+    <!-- 操作按钮 -->
+    <view class="actions">
+      <view class="action-btn" bindtap="onSearchToggle">
+        <text class="action-icon">🔍</text>
+      </view>
+      <view class="action-btn" bindtap="onCreateChat">
+        <text class="action-icon">✏️</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索框 -->
+  <view wx:if="{{showSearch}}" class="search-section fade-in">
+    <view class="search-box">
+      <view class="search-input-wrapper">
+        <text class="search-icon">🔍</text>
+        <input 
+          class="search-input"
+          placeholder="搜索聊天和消息..."
+          value="{{searchText}}"
+          bindinput="onSearchInput"
+        />
+        <view wx:if="{{searchText}}" class="clear-btn" bindtap="onSearchClear">
+          <text>×</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 聊天列表 -->
+  <view class="chat-list">
+    <!-- 未登录状态 -->
+    <view wx:if="{{!isLoggedIn}}" class="login-section">
+      <view class="login-content card">
+        <view class="login-icon">💬</view>
+        <view class="login-title">登录后查看消息</view>
+        <view class="login-desc">与朋友私聊，分享心情体验</view>
+        <button class="login-btn btn btn-primary" bindtap="onLogin">立即登录</button>
+      </view>
+    </view>
+
+    <!-- 加载状态 -->
+    <view wx:elif="{{isLoading}}" class="loading-section">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+
+    <!-- 空状态 -->
+    <view wx:elif="{{filteredRooms.length === 0}}" class="empty-section">
+      <view class="empty-icon">
+        <text>{{activeTab === 'unread' ? '✅' : (activeTab === 'groups' ? '👥' : '💬')}}</text>
+      </view>
+      <view class="empty-title">
+        {{activeTab === 'unread' ? '暂无未读消息' : (activeTab === 'groups' ? '暂无群聊' : '暂无消息')}}
+      </view>
+      <view class="empty-desc">
+        {{activeTab === 'unread' ? '所有消息都已阅读' : (activeTab === 'groups' ? '创建或加入群聊开始交流' : '开始一段新的对话')}}
+      </view>
+      <button wx:if="{{activeTab !== 'unread'}}" class="empty-action-btn" bindtap="onCreateChat">
+        {{activeTab === 'groups' ? '创建群聊' : '发起聊天'}}
+      </button>
+    </view>
+
+    <!-- 聊天室列表 -->
+    <view wx:else class="rooms-list">
+      <view 
+        wx:for="{{filteredRooms}}" 
+        wx:key="id"
+        class="room-item {{item.isPinned ? 'pinned' : ''}} fade-in"
+        style="animation-delay: {{index * 0.05}}s"
+        data-room="{{item}}"
+        data-index="{{index}}"
+        bindtap="onRoomTap"
+        bindlongpress="onRoomLongPress"
+      >
+        <!-- 置顶标识 -->
+        <view wx:if="{{item.isPinned}}" class="pin-indicator">📌</view>
+        
+        <view class="room-content">
+          <!-- 头像 -->
+          <view class="room-avatar-wrapper" data-room="{{item}}" bindtap="onAvatarTap">
+            <image 
+              class="room-avatar avatar avatar-lg"
+              src="{{item._avatar}}"
+              mode="aspectFill"
+            />
+            <view wx:if="{{item._unreadCount > 0}}" class="unread-badge">
+              {{item._unreadCount > 99 ? '99+' : item._unreadCount}}
+            </view>
+            <view wx:if="{{item._isGroup}}" class="group-indicator">
+              <text>👥</text>
+            </view>
+          </view>
+
+          <!-- 聊天信息 -->
+          <view class="room-info">
+            <view class="room-header">
+              <text class="room-title {{item._unreadCount > 0 ? 'unread' : ''}}">
+                {{item._title}}
+              </text>
+              <text class="room-time">{{item._lastMessageTime}}</text>
+            </view>
+            
+            <view class="room-subtitle">
+              <text class="last-message {{item._unreadCount > 0 ? 'unread' : ''}}">
+                {{item._lastMessageText}}
+              </text>
+              <view wx:if="{{item._unreadCount > 0}}" class="unread-dot"></view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部安全区域 -->
+  <view class="safe-area"></view>
+</view>

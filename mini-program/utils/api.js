@@ -1,10 +1,55 @@
 // API 配置和工具函数
-const API_BASE_URL = 'https://47.104.8.84';
+
+// 环境配置
+const ENVIRONMENT = {
+  development: {
+    baseURL: 'http://localhost:3001', // 本地开发服务器
+    name: '开发环境'
+  },
+  production: {
+    baseURL: 'https://47.104.8.84', // 生产服务器
+    name: '生产环境'
+  }
+};
+
+// 自动检测环境
+function getEnvironment() {
+  // 可以通过编译时环境变量或手动切换
+  const env = wx.getStorageSync('miniprogram_env') || 'production';
+  return ENVIRONMENT[env] || ENVIRONMENT.production;
+}
+
+const currentEnv = getEnvironment();
+const API_BASE_URL = currentEnv.baseURL;
 
 class API {
   constructor() {
     this.baseURL = API_BASE_URL;
     this.token = wx.getStorageSync('token') || '';
+    this.currentEnv = currentEnv;
+    
+    // 开发环境提示
+    if (this.currentEnv.baseURL.includes('localhost')) {
+      console.log(`🔧 小程序运行在${this.currentEnv.name}: ${this.baseURL}`);
+    }
+  }
+  
+  // 切换环境
+  switchEnvironment(env = 'production') {
+    wx.setStorageSync('miniprogram_env', env);
+    wx.showModal({
+      title: '环境切换',
+      content: `已切换到${ENVIRONMENT[env].name}，请重启小程序生效`,
+      showCancel: false
+    });
+  }
+  
+  // 获取当前环境信息
+  getEnvInfo() {
+    return {
+      ...this.currentEnv,
+      isDevelopment: this.baseURL.includes('localhost')
+    };
   }
 
   // 设置token
@@ -253,8 +298,38 @@ const ApiService = {
   upload: (filePath, name, formData) => api.upload(filePath, name, formData)
 };
 
+// 环境管理工具
+const EnvManager = {
+  // 切换到开发环境
+  switchToDevelopment() {
+    api.switchEnvironment('development');
+  },
+  
+  // 切换到生产环境
+  switchToProduction() {
+    api.switchEnvironment('production');
+  },
+  
+  // 获取当前环境
+  getCurrentEnv() {
+    return api.getEnvInfo();
+  },
+  
+  // 显示环境信息
+  showEnvInfo() {
+    const envInfo = api.getEnvInfo();
+    wx.showModal({
+      title: '环境信息',
+      content: `当前环境: ${envInfo.name}\nAPI地址: ${envInfo.baseURL}`,
+      showCancel: false
+    });
+  }
+};
+
 module.exports = {
   API,
   ApiService,
-  api
+  api,
+  EnvManager,
+  ENVIRONMENT
 };

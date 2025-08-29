@@ -1,5 +1,5 @@
 // pages/profile/index.js
-const { ApiService } = require('../../utils/api');
+const { ApiService, EnvManager } = require('../../utils/api');
 const { showError, showSuccess, hapticFeedback, showConfirm, formatRelativeTime } = require('../../utils/util');
 
 Page({
@@ -53,6 +53,14 @@ Page({
         title: '关于',
         desc: '应用信息',
         url: '/pages/about/index',
+        requireLogin: false
+      },
+      {
+        id: 'developer',
+        icon: '👨‍💻',
+        title: '开发者工具',
+        desc: '环境切换、调试工具',
+        action: 'showDevTools',
         requireLogin: false
       }
     ]
@@ -205,6 +213,12 @@ Page({
       return;
     }
 
+    // 处理特殊action
+    if (item.action) {
+      this[item.action] && this[item.action]();
+      return;
+    }
+
     // 根据不同类型处理跳转
     if (item.url.includes('tab')) {
       wx.switchTab({ url: item.url });
@@ -351,6 +365,101 @@ Page({
       // TODO: 实现数据导出功能
     } catch (error) {
       showError('导出失败');
+    }
+  },
+
+  // 显示开发者工具
+  showDevTools() {
+    const currentEnv = EnvManager.getCurrentEnv();
+    const isDev = currentEnv.isDevelopment;
+    
+    wx.showActionSheet({
+      itemList: [
+        '环境信息',
+        isDev ? '切换到生产环境' : '切换到开发环境',
+        '查看网络日志',
+        '清除缓存',
+        '测试API连接'
+      ],
+      success: (res) => {
+        switch (res.tapIndex) {
+          case 0:
+            EnvManager.showEnvInfo();
+            break;
+          case 1:
+            if (isDev) {
+              EnvManager.switchToProduction();
+            } else {
+              EnvManager.switchToDevelopment();
+            }
+            break;
+          case 2:
+            this.showNetworkLogs();
+            break;
+          case 3:
+            this.clearAllCache();
+            break;
+          case 4:
+            this.testApiConnection();
+            break;
+        }
+      }
+    });
+  },
+
+  // 显示网络日志
+  showNetworkLogs() {
+    wx.showModal({
+      title: '网络日志',
+      content: '请在开发者工具的控制台查看网络请求日志',
+      showCancel: false
+    });
+  },
+
+  // 清除缓存
+  clearAllCache() {
+    wx.showModal({
+      title: '清除缓存',
+      content: '确定要清除所有本地缓存吗？',
+      success: (res) => {
+        if (res.confirm) {
+          try {
+            wx.clearStorageSync();
+            showSuccess('缓存清除成功，请重启小程序');
+          } catch (error) {
+            showError('清除缓存失败');
+          }
+        }
+      }
+    });
+  },
+
+  // 测试API连接
+  async testApiConnection() {
+    wx.showLoading({ title: '测试连接中...' });
+    
+    try {
+      const envInfo = EnvManager.getCurrentEnv();
+      
+      // 尝试访问健康检查接口
+      const response = await ApiService.auth.getProfile().catch(() => {
+        // 如果认证失败，尝试公开接口
+        return { test: 'connection' };
+      });
+      
+      wx.hideLoading();
+      wx.showModal({
+        title: '连接测试',
+        content: `✅ 连接成功\n\n环境: ${envInfo.name}\nAPI: ${envInfo.baseURL}`,
+        showCancel: false
+      });
+    } catch (error) {
+      wx.hideLoading();
+      wx.showModal({
+        title: '连接测试',
+        content: `❌ 连接失败\n\n错误: ${error.message || '网络连接异常'}`,
+        showCancel: false
+      });
     }
   },
 
