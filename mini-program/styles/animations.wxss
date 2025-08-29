@@ -455,11 +455,5 @@ page {
   perspective: 1000rpx;
 }
 
-/* 响应式动画 */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01s !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01s !important;
-  }
-}
+/* 响应式动画 - 微信小程序不支持通配符选择器，移除此部分 */
+/* 注意：微信小程序环境中通常不需要 prefers-reduced-motion 媒体查询 */

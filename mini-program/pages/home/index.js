@@ -6,16 +6,24 @@ Page({
   data: {
     userInfo: null,
     isLoggedIn: false,
-    dailyQuote: null,
-    weather: null,
+    dailyQuote: {
+      content: '每一天都是新的开始，保持积极的心态。',
+      author: 'kimochi心晴'
+    },
+    weather: {
+      summary: '多云',
+      temperatureC: '22',
+      humidity: '65',
+      locationName: '当前位置'
+    },
     hotPosts: [],
     unreadCount: 0,
-    isLoading: true,
+    isLoading: false, // 改为false，避免页面一直显示空白
     refreshing: false,
     location: {
       latitude: null,
       longitude: null,
-      city: '未知位置'
+      city: '当前位置'
     },
     quickActions: [
       {
@@ -74,35 +82,52 @@ Page({
 
   async initPage() {
     try {
-      // 并行加载数据
-      await Promise.all([
-        this.checkLoginStatus(),
-        this.loadHomeData()
-      ]);
+      // 先快速检查登录状态
+      this.checkLoginStatus();
+      
+      // 延迟加载其他数据，避免阻塞界面显示
+      setTimeout(() => {
+        this.loadHomeData().catch(error => {
+          console.error('首页数据加载失败:', error);
+        });
+      }, 100);
+      
     } catch (error) {
       console.error('页面初始化失败:', error);
-    } finally {
-      this.setData({ isLoading: false });
     }
   },
 
-  async checkLoginStatus() {
-    const token = wx.getStorageSync('token');
-    if (token) {
-      try {
-        const userInfo = await ApiService.auth.getProfile();
-        this.setData({
-          isLoggedIn: true,
-          userInfo
+  checkLoginStatus() {
+    try {
+      const token = wx.getStorageSync('token');
+      if (token) {
+        // 异步验证token，不阻塞界面
+        ApiService.auth.getProfile().then(userInfo => {
+          this.setData({
+            isLoggedIn: true,
+            userInfo
+          });
+        }).catch(error => {
+          console.log('Token验证失败:', error);
+          // Token失效，清除本地数据
+          wx.removeStorageSync('token');
+          this.setData({
+            isLoggedIn: false,
+            userInfo: null
+          });
         });
-      } catch (error) {
-        // Token失效，清除本地数据
-        wx.removeStorageSync('token');
+      } else {
         this.setData({
           isLoggedIn: false,
           userInfo: null
         });
       }
+    } catch (error) {
+      console.error('检查登录状态失败:', error);
+      this.setData({
+        isLoggedIn: false,
+        userInfo: null
+      });
     }
   },
 
@@ -149,7 +174,10 @@ Page({
       }
       
       const data = await ApiService.home.getDailyQuote();
-      const quoteData = data.sentence || null;
+      const quoteData = data.sentence || {
+        content: '心情就像天气，时而晴朗时而多云，但都会过去。',
+        author: 'kimochi心晴'
+      };
       
       this.setData({ dailyQuote: quoteData });
       
@@ -157,13 +185,7 @@ Page({
       cacheManager.set(cacheKey, quoteData, 60 * 60 * 1000);
     } catch (error) {
       console.error('获取今日心语失败:', error);
-      // 使用默认心语
-      this.setData({
-        dailyQuote: {
-          content: '每一天都是新的开始，保持积极的心态。',
-          author: 'kimochi心晴'
-        }
-      });
+      // 保持默认心语，不需要更新
     }
   },
 

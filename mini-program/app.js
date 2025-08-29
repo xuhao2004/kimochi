@@ -67,25 +67,45 @@ App({
 
   // 初始化系统信息
   initSystemInfo() {
-    wx.getSystemInfo({
-      success: (systemInfo) => {
-        this.globalData.systemInfo = systemInfo;
+    // 使用新的API替代废弃的wx.getSystemInfo
+    try {
+      const deviceInfo = wx.getDeviceInfo ? wx.getDeviceInfo() : {};
+      const windowInfo = wx.getWindowInfo ? wx.getWindowInfo() : {};
+      const appBaseInfo = wx.getAppBaseInfo ? wx.getAppBaseInfo() : {};
       
-        console.log('系统信息:', {
-          platform: systemInfo.platform,
-          version: systemInfo.version,
-          SDKVersion: systemInfo.SDKVersion,
-          screenWidth: systemInfo.screenWidth,
-          screenHeight: systemInfo.screenHeight
-        });
-        
-        // 设置全局样式变量
-        this.setGlobalStyle(systemInfo);
-      },
-      fail: (error) => {
-        console.error('获取系统信息失败:', error);
-      }
-    });
+      // 合并系统信息以保持兼容性
+      const systemInfo = {
+        ...deviceInfo,
+        ...windowInfo,
+        ...appBaseInfo
+      };
+      
+      this.globalData.systemInfo = systemInfo;
+      
+      console.log('系统信息:', {
+        platform: systemInfo.platform,
+        version: systemInfo.version,
+        SDKVersion: systemInfo.SDKVersion,
+        screenWidth: systemInfo.screenWidth,
+        screenHeight: systemInfo.screenHeight
+      });
+      
+      // 设置全局样式变量
+      this.setGlobalStyle(systemInfo);
+    } catch (error) {
+      console.error('获取系统信息失败:', error);
+      
+      // 兼容旧版本API
+      wx.getSystemInfo({
+        success: (systemInfo) => {
+          this.globalData.systemInfo = systemInfo;
+          this.setGlobalStyle(systemInfo);
+        },
+        fail: (error) => {
+          console.error('获取系统信息失败:', error);
+        }
+      });
+    }
   },
 
   // 设置全局样式

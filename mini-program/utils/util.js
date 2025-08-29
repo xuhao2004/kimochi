@@ -346,14 +346,39 @@ const scanCode = (onlyFromCamera = true, scanType = ['qrCode']) => {
 };
 
 /**
- * 获取系统信息
+ * 获取系统信息 (使用新API)
  */
 const getSystemInfo = () => {
   return new Promise((resolve, reject) => {
-    wx.getSystemInfo({
-      success: resolve,
-      fail: reject
-    });
+    try {
+      // 使用新的API替代废弃的wx.getSystemInfo
+      if (wx.getDeviceInfo && wx.getWindowInfo && wx.getAppBaseInfo) {
+        const deviceInfo = wx.getDeviceInfo();
+        const windowInfo = wx.getWindowInfo();
+        const appBaseInfo = wx.getAppBaseInfo();
+        
+        // 合并信息以保持兼容性
+        const systemInfo = {
+          ...deviceInfo,
+          ...windowInfo,
+          ...appBaseInfo
+        };
+        
+        resolve(systemInfo);
+      } else {
+        // 兼容旧版本
+        wx.getSystemInfo({
+          success: resolve,
+          fail: reject
+        });
+      }
+    } catch (error) {
+      // 出错时使用旧API
+      wx.getSystemInfo({
+        success: resolve,
+        fail: reject
+      });
+    }
   });
 };
 
