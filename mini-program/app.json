@@ -58,15 +58,9 @@
   "permission": {
     "scope.userLocation": {
       "desc": "用于获取天气信息和位置服务"
-    },
-    "scope.camera": {
-      "desc": "用于扫码功能"
-    },
-    "scope.album": {
-      "desc": "用于上传图片和个人头像"
     }
   },
-  "requiredPrivateInfos": ["getLocation", "chooseLocation"],
+  "requiredPrivateInfos": ["getLocation"],
   "style": "v2", 
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents",

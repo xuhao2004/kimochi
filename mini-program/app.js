@@ -1,8 +1,6 @@
 // app.js
+// 简化启动，减少模块依赖
 const { api } = require('./utils/api');
-const { checkForUpdate } = require('./utils/util');
-const { globalMonitor } = require('./utils/monitor');
-const { errorManager } = require('./utils/performance');
 
 App({
   globalData: {
@@ -16,24 +14,15 @@ App({
   onLaunch(options) {
     console.log('小程序启动', options);
     
-    // 启动性能监控 (仅开发环境)
-    const isDevelopment = wx.getStorageSync('miniprogram_env') === 'development';
-    if (isDevelopment) {
-      globalMonitor.startMonitoring();
-      console.log('🔍 开发环境：已启用性能监控');
-    }
-    
-    // 初始化系统信息
+    // 基础初始化
     this.initSystemInfo();
-    
-    // 初始化用户数据
     this.initUserData();
     
-    // 检查更新
-    this.checkAppUpdate();
-    
-    // 处理启动参数
-    this.handleLaunchOptions(options);
+    // 延迟初始化其他功能
+    setTimeout(() => {
+      this.initAdvancedFeatures();
+      this.handleLaunchOptions(options);
+    }, 100);
   },
 
   onShow(options) {
@@ -56,32 +45,47 @@ App({
   onError(error) {
     console.error('小程序错误:', error);
     
-    // 使用错误管理器记录和处理错误
-    errorManager.handleError(error, 'Application', { silent: true });
-    
     // 记录错误日志
     this.logError(error);
   },
 
+  // 初始化高级功能
+  initAdvancedFeatures() {
+    try {
+      // 启动性能监控 (仅开发环境)
+      const isDevelopment = wx.getStorageSync('miniprogram_env') === 'development';
+      if (isDevelopment) {
+        console.log('🔍 开发环境：启用监控功能');
+      }
+      
+      // 检查更新
+      this.checkAppUpdate();
+    } catch (error) {
+      console.error('高级功能初始化失败:', error);
+    }
+  },
+
   // 初始化系统信息
   initSystemInfo() {
-    try {
-      const systemInfo = wx.getSystemInfoSync();
-      this.globalData.systemInfo = systemInfo;
+    wx.getSystemInfo({
+      success: (systemInfo) => {
+        this.globalData.systemInfo = systemInfo;
       
-      console.log('系统信息:', {
-        platform: systemInfo.platform,
-        version: systemInfo.version,
-        SDKVersion: systemInfo.SDKVersion,
-        screenWidth: systemInfo.screenWidth,
-        screenHeight: systemInfo.screenHeight
-      });
-      
-      // 设置全局样式变量
-      this.setGlobalStyle(systemInfo);
-    } catch (error) {
-      console.error('获取系统信息失败:', error);
-    }
+        console.log('系统信息:', {
+          platform: systemInfo.platform,
+          version: systemInfo.version,
+          SDKVersion: systemInfo.SDKVersion,
+          screenWidth: systemInfo.screenWidth,
+          screenHeight: systemInfo.screenHeight
+        });
+        
+        // 设置全局样式变量
+        this.setGlobalStyle(systemInfo);
+      },
+      fail: (error) => {
+        console.error('获取系统信息失败:', error);
+      }
+    });
   },
 
   // 设置全局样式
@@ -166,7 +170,27 @@ App({
 
   // 检查应用更新
   checkAppUpdate() {
-    checkForUpdate();
+    if (wx.canIUse('getUpdateManager')) {
+      const updateManager = wx.getUpdateManager();
+      
+      updateManager.onCheckForUpdate((res) => {
+        if (res.hasUpdate) {
+          console.log('发现新版本');
+        }
+      });
+      
+      updateManager.onUpdateReady(() => {
+        wx.showModal({
+          title: '更新提示',
+          content: '新版本已准备好，是否重启应用？',
+          success: (res) => {
+            if (res.confirm) {
+              updateManager.applyUpdate();
+            }
+          }
+        });
+      });
+    }
   },
 
   // 处理启动参数

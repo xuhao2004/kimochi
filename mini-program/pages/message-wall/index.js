@@ -1,6 +1,6 @@
 // pages/message-wall/index.js
 const { ApiService } = require('../../utils/api');
-const { formatRelativeTime, showError, showSuccess, hapticFeedback, showConfirm, cacheManager, optimizeImage, paginateData } = require('../../utils/util');
+const { formatRelativeTime, showError, showSuccess, hapticFeedback, showConfirm } = require('../../utils/util');
 
 Page({
   data: {
@@ -72,7 +72,7 @@ Page({
       const currentPage = append ? page : 1;
       
       const response = await ApiService.wall.getPosts(currentPage, limit, filterType);
-      const newPosts = await this.processPosts(response.posts || response);
+      const newPosts = this.processPosts(response.posts || response);
 
       this.setData({
         posts: append ? [...this.data.posts, ...newPosts] : newPosts,
@@ -100,23 +100,15 @@ Page({
     await this.loadPosts(true);
   },
 
-  async processPosts(posts) {
-    return Promise.all(posts.map(async post => {
-      // 优化图片加载
-      const optimizedImages = await Promise.all(
-        (post.images || []).map(async img => await optimizeImage(img, { maxWidth: 400, maxHeight: 400 }))
-      );
-      
-      return {
-        ...post,
-        _createdAt: formatRelativeTime(post.createdAt),
-        _isLiked: post.isLiked || false,
-        _canDelete: this.data.isLoggedIn && 
-          (post.authorId === this.data.userInfo?.id || this.data.userInfo?.role === 'ADMIN'),
-        _content: this.processContent(post.content),
-        _images: optimizedImages,
-        _authorAvatar: await optimizeImage(post.author.avatar || '/assets/default/avatar.png', { maxWidth: 100, maxHeight: 100 })
-      };
+  processPosts(posts) {
+    return posts.map(post => ({
+      ...post,
+      _createdAt: formatRelativeTime(post.createdAt),
+      _isLiked: post.isLiked || false,
+      _canDelete: this.data.isLoggedIn && 
+        (post.authorId === this.data.userInfo?.id || this.data.userInfo?.role === 'ADMIN'),
+      _content: this.processContent(post.content),
+      _images: post.images || []
     }));
   },
 

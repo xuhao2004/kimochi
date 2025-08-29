@@ -1,5 +1,22 @@
 // 工具函数集合
-const { performance } = require('./performance');
+// 为避免循环引用，延迟加载性能模块
+let performance = null;
+
+function getPerformance() {
+  if (!performance) {
+    try {
+      performance = require('./performance').performance;
+    } catch (error) {
+      console.log('性能模块加载失败，使用简化版本');
+      performance = {
+        getCache: () => null,
+        setCache: () => {},
+        clearCache: () => {}
+      };
+    }
+  }
+  return performance;
+}
 
 /**
  * 格式化时间
@@ -203,17 +220,37 @@ const getCurrentLocation = () => {
 };
 
 /**
- * 选择图片
+ * 选择图片 (使用新的chooseMedia API)
  */
 const chooseImage = (count = 1, sizeType = ['compressed'], sourceType = ['album', 'camera']) => {
   return new Promise((resolve, reject) => {
-    wx.chooseImage({
-      count,
-      sizeType,
-      sourceType,
-      success: resolve,
-      fail: reject
-    });
+    // 优先使用新的 chooseMedia API
+    if (wx.chooseMedia) {
+      wx.chooseMedia({
+        count,
+        mediaType: ['image'],
+        sizeType,
+        sourceType,
+        success: (res) => {
+          // 转换为旧格式以保持兼容性
+          const result = {
+            tempFilePaths: res.tempFiles.map(file => file.tempFilePath),
+            tempFiles: res.tempFiles
+          };
+          resolve(result);
+        },
+        fail: reject
+      });
+    } else {
+      // 兼容旧版本
+      wx.chooseImage({
+        count,
+        sizeType,
+        sourceType,
+        success: resolve,
+        fail: reject
+      });
+    }
   });
 };
 
@@ -287,8 +324,10 @@ const vibrateShort = () => {
  * 触觉反馈
  */
 const hapticFeedback = (type = 'light') => {
-  if (wx.getSystemInfoSync().platform === 'ios') {
+  try {
     wx.vibrateShort({ type });
+  } catch (error) {
+    console.log('振动反馈失败:', error);
   }
 };
 
@@ -310,7 +349,12 @@ const scanCode = (onlyFromCamera = true, scanType = ['qrCode']) => {
  * 获取系统信息
  */
 const getSystemInfo = () => {
-  return wx.getSystemInfoSync();
+  return new Promise((resolve, reject) => {
+    wx.getSystemInfo({
+      success: resolve,
+      fail: reject
+    });
+  });
 };
 
 /**
@@ -384,7 +428,8 @@ const optimizeImage = async (src, options = {}) => {
   
   // 检查缓存
   const cacheKey = `img:${src}:${maxWidth}x${maxHeight}`;
-  const cached = performance.getCache(cacheKey);
+  const perf = getPerformance();
+  const cached = perf.getCache(cacheKey);
   if (cached) {
     return cached;
   }
@@ -394,7 +439,7 @@ const optimizeImage = async (src, options = {}) => {
     const optimizedSrc = src;
     
     // 缓存优化后的图片地址
-    performance.setCache(cacheKey, optimizedSrc, 60 * 60 * 1000); // 1小时缓存
+    perf.setCache(cacheKey, optimizedSrc, 60 * 60 * 1000); // 1小时缓存
     
     return optimizedSrc;
   } catch (error) {

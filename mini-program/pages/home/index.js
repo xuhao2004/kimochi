@@ -1,6 +1,6 @@
 // pages/home/index.js
 const { ApiService } = require('../../utils/api');
-const { formatRelativeTime, getCurrentLocation, showError, showSuccess, hapticFeedback, cacheManager, optimizeImage, performanceMonitor } = require('../../utils/util');
+const { formatRelativeTime, getCurrentLocation, showError, showSuccess, hapticFeedback, cacheManager } = require('../../utils/util');
 
 Page({
   data: {
@@ -139,15 +139,12 @@ Page({
 
   async getDailyQuote() {
     try {
-      performanceMonitor.start('LoadDailyQuote');
-      
       // 检查缓存 (每日心语缓存1小时)
       const cacheKey = 'daily_quote_' + new Date().toDateString();
       const cached = cacheManager.get(cacheKey);
       
       if (cached) {
         this.setData({ dailyQuote: cached });
-        performanceMonitor.end('LoadDailyQuote');
         return;
       }
       
@@ -158,8 +155,6 @@ Page({
       
       // 缓存结果
       cacheManager.set(cacheKey, quoteData, 60 * 60 * 1000);
-      
-      performanceMonitor.end('LoadDailyQuote');
     } catch (error) {
       console.error('获取今日心语失败:', error);
       // 使用默认心语
@@ -211,8 +206,6 @@ Page({
 
   async getWeatherData() {
     try {
-      performanceMonitor.start('LoadWeather');
-      
       // 先尝试获取位置
       const location = await getCurrentLocation();
       
@@ -230,7 +223,6 @@ Page({
           weather: cached,
           'location.city': cached.locationName || this.data.location.city
         });
-        performanceMonitor.end('LoadWeather');
         return;
       }
 
@@ -247,8 +239,6 @@ Page({
       
       // 缓存天气数据
       cacheManager.set(cacheKey, weather, 15 * 60 * 1000);
-      
-      performanceMonitor.end('LoadWeather');
     } catch (error) {
       console.error('获取天气失败:', error);
       if (error.errMsg && error.errMsg.includes('auth deny')) {

@@ -1,5 +1,30 @@
 // API 配置和工具函数
-const { performance, errorManager } = require('./performance');
+// 为避免循环引用，延迟加载性能模块
+let performance = null;
+let errorManager = null;
+
+function getPerformanceModules() {
+  if (!performance || !errorManager) {
+    try {
+      const perfModule = require('./performance');
+      performance = perfModule.performance;
+      errorManager = perfModule.errorManager;
+    } catch (error) {
+      console.log('性能模块加载失败，使用简化版本');
+      performance = {
+        getCache: () => null,
+        setCache: () => {},
+        clearCache: () => {},
+        dedupeRequest: (key, fn) => fn(),
+        metrics: { apiCalls: 0, errors: 0 }
+      };
+      errorManager = {
+        handleError: (error, context, options) => ({ success: false, error })
+      };
+    }
+  }
+  return { performance, errorManager };
+}
 
 // 环境配置
 const ENVIRONMENT = {
@@ -94,6 +119,8 @@ class API {
     const requestKey = `${method}:${url}:${JSON.stringify(data)}`;
     
     try {
+      const { performance, errorManager } = getPerformanceModules();
+      
       const response = await performance.dedupeRequest(requestKey, async () => {
         performance.metrics.apiCalls++;
 
@@ -159,6 +186,8 @@ class API {
         wx.hideLoading();
       }
 
+      const { performance, errorManager } = getPerformanceModules();
+      
       performance.metrics.errors++;
       
       // 使用错误管理器处理错误

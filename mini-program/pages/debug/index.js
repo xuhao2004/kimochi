@@ -81,22 +81,28 @@ Page({
 
   // 加载缓存信息
   loadCacheInfo() {
-    try {
-      const info = wx.getStorageInfoSync();
-      const cacheSize = performance.cache.size;
+    wx.getStorageInfo({
+      success: (info) => {
+        try {
+          const cacheSize = performance.cache.size;
       
-      this.setData({
-        cacheInfo: {
-          storageSize: `${(info.currentSize / 1024).toFixed(2)} KB`,
-          storageLimit: `${(info.limitSize / 1024).toFixed(2)} KB`,
-          storageUsage: ((info.currentSize / info.limitSize) * 100).toFixed(1),
-          memoryCache: cacheSize,
-          keys: info.keys.length
+          this.setData({
+            cacheInfo: {
+              storageSize: `${(info.currentSize / 1024).toFixed(2)} KB`,
+              storageLimit: `${(info.limitSize / 1024).toFixed(2)} KB`,
+              storageUsage: ((info.currentSize / info.limitSize) * 100).toFixed(1),
+              memoryCache: cacheSize,
+              keys: info.keys.length
+            }
+          });
+        } catch (error) {
+          console.error('处理缓存信息失败:', error);
         }
-      });
-    } catch (error) {
-      console.error('加载缓存信息失败:', error);
-    }
+      },
+      fail: (error) => {
+        console.error('获取缓存信息失败:', error);
+      }
+    });
   },
 
   // 加载错误信息
