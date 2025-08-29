@@ -335,6 +335,12 @@ const api = new API();
 const ApiService = {
   // 用户认证
   auth: {
+    // 账号密码登录
+    login: (email, password) => api.post('/api/auth/login', { 
+      identifier: email, // 使用identifier字段保持与后端一致
+      password 
+    }),
+    
     // 微信登录
     wxLogin: (code, userInfo) => api.post('/api/auth/weapp-login', { code, userInfo }),
     
@@ -346,6 +352,12 @@ const ApiService = {
     
     // 更新用户信息
     updateProfile: (data) => api.put('/api/auth/profile', data),
+    
+    // 设置token
+    setToken: (token) => api.setToken(token),
+    
+    // 清除token
+    clearToken: () => api.clearToken(),
     
     // 登出
     logout: () => api.post('/api/auth/logout')

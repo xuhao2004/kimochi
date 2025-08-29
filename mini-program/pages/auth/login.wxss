@@ -36,6 +36,40 @@
   opacity: 0.8;
 }
 
+/* 登录方式切换标签 */
+.login-tabs {
+  display: flex;
+  width: 100%;
+  max-width: 600rpx;
+  background: var(--background-secondary);
+  border-radius: var(--radius-lg);
+  padding: 6rpx;
+  margin-bottom: 32rpx;
+  box-shadow: var(--shadow-sm);
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 24rpx;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.tab-item.active {
+  background: var(--color-primary);
+  color: #ffffff;
+  transform: scale(1.02);
+  box-shadow: var(--shadow-md);
+}
+
+.tab-item:active {
+  transform: scale(0.98);
+}
+
 /* 登录内容 */
 .login-content {
   width: 100%;
@@ -50,6 +84,45 @@
   padding: 48rpx 40rpx;
   box-shadow: var(--shadow-medium);
   border: 1rpx solid var(--border-color);
+}
+
+/* 账号密码登录区域 */
+.password-login-section {
+  background: var(--background-secondary);
+  border-radius: var(--radius-xl);
+  padding: 48rpx 40rpx;
+  box-shadow: var(--shadow-medium);
+  border: 1rpx solid var(--border-color);
+}
+
+.login-form {
+  margin: 32rpx 0;
+}
+
+.login-btn {
+  width: 100%;
+  background: var(--color-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 28rpx 32rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-top: 24rpx;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.login-btn:disabled {
+  background: var(--background-tertiary);
+  color: var(--text-tertiary);
+  transform: none;
+}
+
+.login-btn:not(:disabled):active {
+  transform: scale(0.98);
+  background: var(--color-primary-dark);
 }
 
 .welcome-text {

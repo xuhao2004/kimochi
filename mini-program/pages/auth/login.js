@@ -4,10 +4,20 @@ const { showError, showSuccess, hapticFeedback, showLoading, hideLoading } = req
 
 Page({
   data: {
+    loginMode: 'wechat', // 'wechat' | 'password'
     isLoading: false,
     hasUserInfo: false,
     userInfo: null,
     bindMode: false, // 是否为绑定模式
+    
+    // 账号密码登录表单
+    loginForm: {
+      email: '',
+      password: ''
+    },
+    showLoginPassword: false,
+    
+    // 微信绑定表单
     bindForm: {
       email: '',
       password: ''
@@ -20,6 +30,42 @@ Page({
     if (options.bind === '1') {
       this.setData({ bindMode: true });
     }
+    
+    // 检查是否指定登录模式
+    if (options.mode === 'password') {
+      this.setData({ loginMode: 'password' });
+    }
+  },
+
+  // 切换登录模式
+  switchLoginMode(e) {
+    const mode = e.currentTarget.dataset.mode;
+    hapticFeedback();
+    this.setData({ 
+      loginMode: mode,
+      // 清空表单数据
+      loginForm: { email: '', password: '' }
+    });
+  },
+
+  // 账号密码登录表单输入事件
+  onLoginEmailInput(e) {
+    this.setData({
+      'loginForm.email': e.detail.value
+    });
+  },
+
+  onLoginPasswordInput(e) {
+    this.setData({
+      'loginForm.password': e.detail.value
+    });
+  },
+
+  onToggleLoginPassword() {
+    hapticFeedback();
+    this.setData({
+      showLoginPassword: !this.data.showLoginPassword
+    });
   },
 
   // 微信登录
@@ -71,6 +117,65 @@ Page({
         this.setData({ isLoading: false });
       }
     });
+  },
+
+  // 账号密码登录
+  async onPasswordLogin() {
+    if (this.data.isLoading) return;
+    
+    const { loginForm } = this.data;
+    
+    // 表单验证
+    if (!loginForm.email || !loginForm.password) {
+      showError('请填写完整的登录信息');
+      return;
+    }
+    
+    // 简单的邮箱格式验证
+    const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailReg.test(loginForm.email)) {
+      showError('请输入正确的邮箱格式');
+      return;
+    }
+    
+    hapticFeedback();
+    this.setData({ isLoading: true });
+    
+    try {
+      // 调用账号密码登录API
+      const response = await ApiService.auth.login(loginForm.email, loginForm.password);
+      
+      if (response.success) {
+        // 登录成功
+        ApiService.auth.setToken(response.token);
+        showSuccess('登录成功');
+        
+        // 通知全局状态更新
+        const app = getApp();
+        app.globalData.userInfo = response.user;
+        app.globalData.isLoggedIn = true;
+        
+        // 延迟跳转
+        setTimeout(() => {
+          this.navigateBack();
+        }, 1500);
+      } else {
+        showError(response.message || '登录失败');
+      }
+    } catch (error) {
+      console.error('账号密码登录失败:', error);
+      
+      // 根据错误类型提供不同提示
+      if (error.message.includes('401')) {
+        showError('邮箱或密码错误');
+      } else if (error.message.includes('网络')) {
+        showError('网络连接失败，请检查网络后重试');
+      } else {
+        showError(error.message || '登录失败，请重试');
+      }
+    } finally {
+      this.setData({ isLoading: false });
+    }
   },
 
   // 获取微信登录码
@@ -176,13 +281,14 @@ Page({
     });
   },
 
-  // 切换到注册模式
+  // 切换到注册模式  
   onSwitchToRegister() {
+    hapticFeedback();
     wx.showModal({
-      title: '注册新账号',
-      content: '建议前往网页版注册新账号，获得完整功能体验',
-      showCancel: true,
-      cancelText: '取消',
+      title: '账号注册',
+      content: '请在kimochi官网完成账号注册，注册后即可在小程序使用账号密码登录',
+      confirmText: '前往官网', 
+      cancelText: '稍后注册',
       confirmText: '前往注册',
       success: (res) => {
         if (res.confirm) {

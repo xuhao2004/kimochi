@@ -11,10 +11,28 @@
     </view>
   </view>
 
+  <!-- 登录方式切换 -->
+  <view class="login-tabs">
+    <view 
+      class="tab-item {{loginMode === 'wechat' ? 'active' : ''}}"
+      bindtap="switchLoginMode"
+      data-mode="wechat"
+    >
+      <text>微信登录</text>
+    </view>
+    <view 
+      class="tab-item {{loginMode === 'password' ? 'active' : ''}}"
+      bindtap="switchLoginMode" 
+      data-mode="password"
+    >
+      <text>账号登录</text>
+    </view>
+  </view>
+
   <!-- 登录内容 -->
   <view class="login-content">
     <!-- 微信登录模式 -->
-    <view wx:if="{{!bindMode}}" class="wechat-login-section">
+    <view wx:if="{{loginMode === 'wechat' && !bindMode}}" class="wechat-login-section">
       <view class="welcome-text">
         <text class="title-3">欢迎使用</text>
         <text class="desc text-secondary">使用微信账号快速登录，享受完整功能</text>
@@ -34,8 +52,66 @@
         </view>
         <view wx:if="{{isLoading}}" class="loading-spinner"></view>
       </button>
+    </view>
 
-      <!-- 其他登录方式 -->
+    <!-- 账号密码登录模式 -->
+    <view wx:if="{{loginMode === 'password' && !bindMode}}" class="password-login-section">
+      <view class="welcome-text">
+        <text class="title-3">账号登录</text>
+        <text class="desc text-secondary">使用邮箱和密码登录您的账号</text>
+      </view>
+
+      <!-- 登录表单 -->
+      <view class="login-form">
+        <view class="form-group">
+          <view class="form-label">
+            <text>邮箱地址</text>
+          </view>
+          <view class="input-wrapper">
+            <input
+              class="form-input"
+              placeholder="请输入邮箱地址"
+              value="{{loginForm.email}}"
+              bindinput="onLoginEmailInput"
+              type="email"
+            />
+          </view>
+        </view>
+
+        <view class="form-group">
+          <view class="form-label">
+            <text>密码</text>
+          </view>
+          <view class="input-wrapper">
+            <input
+              class="form-input"
+              placeholder="请输入密码"
+              value="{{loginForm.password}}"
+              bindinput="onLoginPasswordInput"
+              password="{{!showLoginPassword}}"
+            />
+            <view class="input-action" bindtap="onToggleLoginPassword">
+              <text class="action-icon">{{showLoginPassword ? '🙈' : '👁️'}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="forgot-password" bindtap="onForgotPassword">
+          <text class="link-text">忘记密码？</text>
+        </view>
+      </view>
+
+      <!-- 登录按钮 -->
+      <button 
+        class="login-btn {{isLoading ? 'loading' : ''}}"
+        bindtap="onPasswordLogin"
+        disabled="{{isLoading || !loginForm.email || !loginForm.password}}"
+      >
+        <text>{{isLoading ? '登录中...' : '登录'}}</text>
+        <view wx:if="{{isLoading}}" class="loading-spinner"></view>
+      </button>
+
+      <!-- 注册链接 -->
       <view class="other-options">
         <view class="option-item" bindtap="onSwitchToRegister">
           <text class="option-text">还没有账号？前往注册</text>
