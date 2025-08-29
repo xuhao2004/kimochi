@@ -38,31 +38,47 @@ const ENVIRONMENT = {
   }
 };
 
-// 自动检测环境
+// 检测本地开发服务器是否可用
+function checkLocalServer() {
+  return new Promise((resolve) => {
+    wx.request({
+      url: 'http://localhost:3001/api/health',
+      timeout: 2000, // 2秒超时
+      success: (res) => {
+        resolve(res.statusCode === 200);
+      },
+      fail: () => {
+        resolve(false);
+      }
+    });
+  });
+}
+
+// 智能环境检测
 function getEnvironment() {
-  // 开发模式下默认使用开发环境，除非手动切换
   let env = wx.getStorageSync('miniprogram_env');
   
-  // 如果没有设置环境，根据开发工具判断
+  // 如果没有设置环境，智能判断
   if (!env) {
     try {
       const accountInfo = wx.getAccountInfoSync();
-      // 在开发工具中默认使用开发环境
+      // 在开发工具中优先尝试开发环境
       if (accountInfo.miniProgram.envVersion === 'develop') {
         env = 'development';
-        wx.setStorageSync('miniprogram_env', env);
-        console.log('🔧 自动设置为开发环境');
+        console.log('🔧 开发工具环境，尝试本地服务器');
       } else {
         env = 'production';
+        console.log('🌐 正式环境，使用生产服务器');
       }
     } catch (error) {
-      env = 'production'; // 临时使用生产环境，确保API可用
-      wx.setStorageSync('miniprogram_env', env);
+      env = 'production';
+      console.log('⚠️  环境检测失败，使用生产服务器');
     }
+    wx.setStorageSync('miniprogram_env', env);
   }
   
   console.log(`🌐 当前环境: ${env}`);
-  return ENVIRONMENT[env] || ENVIRONMENT.development;
+  return ENVIRONMENT[env] || ENVIRONMENT.production;
 }
 
 const currentEnv = getEnvironment();
@@ -110,6 +126,25 @@ class API {
     wx.removeStorageSync('token');
   }
 
+  // 检测并切换环境
+  async checkAndSwitchEnvironment() {
+    const currentEnv = wx.getStorageSync('miniprogram_env');
+    
+    // 如果当前是开发环境，检测本地服务器是否可用
+    if (currentEnv === 'development') {
+      const isLocalServerAvailable = await checkLocalServer();
+      if (!isLocalServerAvailable) {
+        console.log('🔄 本地服务器不可用，自动切换到生产环境');
+        wx.setStorageSync('miniprogram_env', 'production');
+        // 更新当前实例的配置
+        this.currentEnv = ENVIRONMENT.production;
+        this.baseURL = this.currentEnv.baseURL;
+        return true; // 表示发生了切换
+      }
+    }
+    return false; // 没有切换
+  }
+
   // 请求拦截器
   async request(options) {
     const {
@@ -124,11 +159,15 @@ class API {
       enableRetry = true
     } = options;
 
+    // 智能环境检测和切换
+    await this.checkAndSwitchEnvironment();
+
     // 生成缓存键
     const cacheKey = cache ? `${method}:${url}:${JSON.stringify(data)}` : null;
     
     // 检查缓存
     if (cache && method === 'GET') {
+      const { performance } = getPerformanceModules();
       const cached = performance.getCache(cacheKey);
       if (cached) {
         return cached;
@@ -409,13 +448,64 @@ const EnvManager = {
   },
   
   // 显示环境信息
-  showEnvInfo() {
+  async showEnvInfo() {
     const envInfo = api.getEnvInfo();
+    let statusMsg = '';
+    
+    // 检测本地服务器状态
+    if (envInfo.baseURL.includes('localhost')) {
+      const isAvailable = await checkLocalServer();
+      statusMsg = isAvailable ? '\n本地服务器: ✅ 可用' : '\n本地服务器: ❌ 不可用';
+    }
+    
     wx.showModal({
       title: '环境信息',
-      content: `当前环境: ${envInfo.name}\nAPI地址: ${envInfo.baseURL}`,
+      content: `当前环境: ${envInfo.name}\nAPI地址: ${envInfo.baseURL}${statusMsg}`,
       showCancel: false
     });
+  },
+
+  // 智能环境检测和切换
+  async smartEnvironmentCheck() {
+    wx.showLoading({ title: '检测环境...' });
+    
+    try {
+      const currentEnv = wx.getStorageSync('miniprogram_env');
+      if (currentEnv === 'development') {
+        const isLocalAvailable = await checkLocalServer();
+        
+        wx.hideLoading();
+        
+        if (!isLocalAvailable) {
+          wx.showModal({
+            title: '环境检测',
+            content: '本地开发服务器不可用，是否切换到生产环境？',
+            success: (res) => {
+              if (res.confirm) {
+                this.switchToProduction();
+              }
+            }
+          });
+        } else {
+          wx.showToast({
+            title: '本地环境正常',
+            icon: 'success'
+          });
+        }
+      } else {
+        wx.hideLoading();
+        wx.showToast({
+          title: '生产环境正常',
+          icon: 'success'
+        });
+      }
+    } catch (error) {
+      wx.hideLoading();
+      wx.showToast({
+        title: '检测失败',
+        icon: 'error'
+      });
+    }
   }
 };
 

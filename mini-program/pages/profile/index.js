@@ -378,7 +378,8 @@ Page({
       wx.showActionSheet({
         itemList: [
           '环境信息',
-          isDev ? '切换到生产环境' : '切换到开发环境',
+          '智能环境检测',
+          isDev ? '切换到生产环境' : '切换到开发环境', 
           '调试面板',
           '性能监控报告',
           '查看网络日志',
@@ -392,16 +393,19 @@ Page({
                 EnvManager.showEnvInfo();
                 break;
               case 1:
+                EnvManager.smartEnvironmentCheck();
+                break;
+              case 2:
                 if (isDev) {
                   EnvManager.switchToProduction();
                 } else {
                   EnvManager.switchToDevelopment();
                 }
                 break;
-              case 2:
+              case 3:
                 wx.navigateTo({ url: '/pages/debug/index' });
                 break;
-              case 3:
+              case 4:
                 try {
                   globalMonitor.showPerformanceReport();
                 } catch (error) {
@@ -412,13 +416,13 @@ Page({
                   });
                 }
                 break;
-              case 4:
+              case 5:
                 this.showNetworkLogs();
                 break;
-              case 5:
+              case 6:
                 this.clearAllCache();
                 break;
-              case 6:
+              case 7:
                 this.testApiConnection();
                 break;
             }
