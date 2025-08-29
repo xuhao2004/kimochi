@@ -1,0 +1,133 @@
+<!--pages/scan/index.wxml-->
+<view class="container">
+  <!-- 头部 -->
+  <view class="header-section">
+    <view class="header-title">
+      <text class="title-2">扫码工具</text>
+      <text class="subtitle">扫描二维码，快捷便民</text>
+    </view>
+    
+    <view class="help-btn" bindtap="onPermissionHelp">
+      <text class="help-icon">❓</text>
+    </view>
+  </view>
+
+  <!-- 快捷操作 -->
+  <view class="actions-section">
+    <view class="actions-grid">
+      <view 
+        wx:for="{{quickActions}}" 
+        wx:key="id"
+        class="action-card card card-hover fade-in"
+        style="animation-delay: {{index * 0.1}}s; --card-color: {{item.color}}"
+        data-action="{{item.action}}"
+        bindtap="onActionTap"
+      >
+        <view class="action-icon" style="background: {{item.color}}15; color: {{item.color}};">
+          <text>{{item.icon}}</text>
+        </view>
+        <view class="action-content">
+          <view class="action-title">{{item.title}}</view>
+          <view class="action-desc">{{item.desc}}</view>
+        </view>
+        <view class="action-arrow">›</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 通用扫码按钮 -->
+  <view class="scan-section">
+    <button class="scan-btn" bindtap="startGeneralScan">
+      <view class="scan-btn-content">
+        <view class="scan-icon">📷</view>
+        <text class="scan-text">通用扫码</text>
+        <text class="scan-desc">支持各种二维码和条形码</text>
+      </view>
+    </button>
+  </view>
+
+  <!-- 登录状态提示 -->
+  <view wx:if="{{!isLoggedIn}}" class="login-prompt card">
+    <view class="card-body">
+      <view class="prompt-content">
+        <view class="prompt-icon">🔐</view>
+        <view class="prompt-text">
+          <view class="prompt-title">登录后体验更多功能</view>
+          <view class="prompt-desc">扫码加好友、加入群聊等</view>
+        </view>
+        <button class="prompt-btn btn btn-primary btn-small" bindtap="onLogin">
+          登录
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 扫码历史 -->
+  <view wx:if="{{scanHistory.length > 0}}" class="history-section">
+    <view class="history-header">
+      <text class="section-title">扫码记录</text>
+      <view class="clear-history-btn" bindtap="onClearHistory">
+        <text class="clear-text">清除</text>
+      </view>
+    </view>
+    
+    <view class="history-list">
+      <view 
+        wx:for="{{scanHistory}}" 
+        wx:key="id"
+        class="history-item card card-hover"
+        data-item="{{item}}"
+        bindtap="onHistoryTap"
+      >
+        <view class="card-body">
+          <view class="history-content">
+            <view class="history-icon">
+              <text>{{item.type === 'login' ? '🔑' : (item.type === 'add_friend' ? '👥' : (item.type === 'join_group' ? '🎭' : '📋'))}}</text>
+            </view>
+            <view class="history-info">
+              <view class="history-title">
+                {{item.type === 'login' ? '登录确认' : (item.type === 'add_friend' ? '添加好友' : (item.type === 'join_group' ? '加入群聊' : '扫码记录'))}}
+              </view>
+              <view class="history-time">{{item.time}}</view>
+            </view>
+            <view class="history-status">
+              <text class="status-icon">{{item.success ? '✅' : '❌'}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 使用说明 -->
+  <view class="tips-section">
+    <view class="tips-card card">
+      <view class="card-body">
+        <view class="tips-header">
+          <text class="tips-title">💡 使用提示</text>
+        </view>
+        <view class="tips-list">
+          <view class="tip-item">
+            <text class="tip-dot">•</text>
+            <text class="tip-text">扫码登录：确认PC端网页登录</text>
+          </view>
+          <view class="tip-item">
+            <text class="tip-dot">•</text>
+            <text class="tip-text">我的二维码：生成个人专属二维码</text>
+          </view>
+          <view class="tip-item">
+            <text class="tip-dot">•</text>
+            <text class="tip-text">扫码加友：快速添加新朋友</text>
+          </view>
+          <view class="tip-item">
+            <text class="tip-dot">•</text>
+            <text class="tip-text">加入群聊：扫描群二维码加入</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部安全区域 -->
+  <view class="safe-area"></view>
+</view>

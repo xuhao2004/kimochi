@@ -1,9 +1,8 @@
 {
-  "navigationBarTitleText": "我的",
+  "navigationBarTitleText": "登录",
   "navigationBarTextStyle": "black",
   "navigationBarBackgroundColor": "#ffffff", 
   "backgroundColor": "#f7f8fa",
-  "enablePullDownRefresh": true,
-  "backgroundTextStyle": "dark",
+  "disableScroll": true,
   "usingComponents": {}
 }

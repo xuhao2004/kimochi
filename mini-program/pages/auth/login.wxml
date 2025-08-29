@@ -1,0 +1,138 @@
+<!--pages/auth/login.wxml-->
+<view class="container">
+  <!-- 头部Logo -->
+  <view class="logo-section">
+    <view class="logo">
+      <text class="logo-text">🌸</text>
+    </view>
+    <view class="app-title">
+      <text class="title-1">kimochi心晴</text>
+      <text class="subtitle">关照情绪，连接彼此</text>
+    </view>
+  </view>
+
+  <!-- 登录内容 -->
+  <view class="login-content">
+    <!-- 微信登录模式 -->
+    <view wx:if="{{!bindMode}}" class="wechat-login-section">
+      <view class="welcome-text">
+        <text class="title-3">欢迎使用</text>
+        <text class="desc text-secondary">使用微信账号快速登录，享受完整功能</text>
+      </view>
+
+      <!-- 微信登录按钮 -->
+      <button 
+        class="wechat-login-btn {{isLoading ? 'loading' : ''}}"
+        bindtap="onWeChatLogin"
+        disabled="{{isLoading}}"
+      >
+        <view class="btn-content">
+          <view class="wechat-icon">
+            <text>💬</text>
+          </view>
+          <text class="btn-text">{{isLoading ? '登录中...' : '微信登录'}}</text>
+        </view>
+        <view wx:if="{{isLoading}}" class="loading-spinner"></view>
+      </button>
+
+      <!-- 其他登录方式 -->
+      <view class="other-options">
+        <view class="option-item" bindtap="onSwitchToRegister">
+          <text class="option-text">还没有账号？前往注册</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 账号绑定模式 -->
+    <view wx:if="{{bindMode}}" class="bind-section">
+      <view class="bind-header">
+        <view wx:if="{{hasUserInfo}}" class="user-preview">
+          <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"/>
+          <text class="user-name">{{userInfo.nickName}}</text>
+        </view>
+        <text class="bind-title">绑定现有账号</text>
+        <text class="bind-desc text-secondary">请输入您的邮箱和密码完成账号绑定</text>
+      </view>
+
+      <!-- 绑定表单 -->
+      <view class="bind-form">
+        <view class="form-group">
+          <view class="form-label">
+            <text>邮箱地址</text>
+          </view>
+          <view class="input-wrapper">
+            <input
+              class="form-input"
+              placeholder="请输入邮箱地址"
+              value="{{bindForm.email}}"
+              bindinput="onEmailInput"
+              type="email"
+            />
+          </view>
+        </view>
+
+        <view class="form-group">
+          <view class="form-label">
+            <text>密码</text>
+          </view>
+          <view class="input-wrapper">
+            <input
+              class="form-input"
+              placeholder="请输入密码"
+              value="{{bindForm.password}}"
+              bindinput="onPasswordInput"
+              password="{{!showPassword}}"
+            />
+            <view class="input-action" bindtap="onTogglePassword">
+              <text class="action-icon">{{showPassword ? '🙈' : '👁️'}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="forgot-password" bindtap="onForgotPassword">
+          <text class="link-text">忘记密码？</text>
+        </view>
+      </view>
+
+      <!-- 绑定按钮 -->
+      <button 
+        class="bind-btn {{isLoading ? 'loading' : ''}}"
+        bindtap="onBindAccount"
+        disabled="{{isLoading}}"
+      >
+        <text>{{isLoading ? '绑定中...' : '绑定账号'}}</text>
+        <view wx:if="{{isLoading}}" class="loading-spinner"></view>
+      </button>
+    </view>
+  </view>
+
+  <!-- 底部链接 -->
+  <view class="footer-links">
+    <view class="link-group">
+      <text class="footer-link" bindtap="onServiceTerms">服务条款</text>
+      <text class="separator">•</text>
+      <text class="footer-link" bindtap="onPrivacyPolicy">隐私政策</text>
+    </view>
+    <view class="help-link" bindtap="onHelp">
+      <text class="help-text">需要帮助？</text>
+    </view>
+  </view>
+
+  <!-- 取消按钮 -->
+  <view class="cancel-section">
+    <button class="cancel-btn" bindtap="onCancel">
+      <text>稍后登录</text>
+    </button>
+  </view>
+
+  <!-- 安全区域 -->
+  <view class="safe-area"></view>
+</view>
+
+<!-- 加载遮罩 -->
+<view wx:if="{{isLoading}}" class="loading-overlay">
+  <view class="loading-content glass">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">{{bindMode ? '绑定中...' : '登录中...'}}</text>
+  </view>
+</view>

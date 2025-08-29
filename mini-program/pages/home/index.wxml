@@ -1,0 +1,157 @@
+<!--pages/home/index.wxml-->
+<view class="container">
+  <!-- 头部用户信息 -->
+  <view class="header-section">
+    <view class="user-info glass" bindtap="onUserInfoTap">
+      <view class="user-avatar">
+        <image 
+          wx:if="{{isLoggedIn && userInfo.avatar}}"
+          src="{{userInfo.avatar}}" 
+          class="avatar avatar-lg"
+          mode="aspectFill"
+        />
+        <view wx:else class="avatar avatar-lg flex items-center justify-center">
+          <text class="text-2xl">{{isLoggedIn ? userInfo.name.charAt(0) : '👤'}}</text>
+        </view>
+      </view>
+      <view class="user-details">
+        <view class="user-name">
+          <text class="title-3">{{isLoggedIn ? userInfo.name : '点击登录'}}</text>
+        </view>
+        <view class="user-subtitle">
+          <text class="text-secondary text-sm">
+            {{isLoggedIn ? (userInfo.email || '已登录用户') : '登录后体验完整功能'}}
+          </text>
+        </view>
+      </view>
+      <view class="header-actions">
+        <view wx:if="{{unreadCount > 0}}" class="badge">{{unreadCount > 99 ? '99+' : unreadCount}}</view>
+        <text class="text-tertiary">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 今日心语 -->
+  <view class="section">
+    <view class="card card-hover" bindtap="onDailyQuoteTap" bindlongpress="shareDailyQuote">
+      <view class="card-body">
+        <view class="flex items-center justify-between mb-3">
+          <view class="flex items-center">
+            <text class="text-lg mr-2">🌸</text>
+            <text class="font-semibold">今日心语</text>
+          </view>
+          <text class="text-xs text-tertiary">点击刷新</text>
+        </view>
+        
+        <view wx:if="{{dailyQuote}}" class="quote-content">
+          <text class="text-base text-primary">{{dailyQuote}}</text>
+        </view>
+        <view wx:else class="quote-placeholder">
+          <text class="text-secondary">轻触获取今日心语...</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 天气信息 -->
+  <view wx:if="{{weather}}" class="section">
+    <view class="card card-hover" bindtap="onWeatherTap">
+      <view class="card-body">
+        <view class="flex items-center justify-between">
+          <view class="weather-info">
+            <view class="flex items-center mb-1">
+              <text class="text-lg mr-2">🌤️</text>
+              <text class="font-semibold">{{weather.locationName}}</text>
+            </view>
+            <view class="weather-details">
+              <text class="text-2xl font-bold">{{weather.temperatureC}}°</text>
+              <text class="text-sm text-secondary ml-2">{{weather.summary}}</text>
+            </view>
+          </view>
+          <view class="weather-extra text-right">
+            <view class="text-sm text-secondary">体感 {{weather.feelsLikeC}}°</view>
+            <view class="text-xs text-tertiary">湿度 {{weather.humidity}}%</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快捷操作 -->
+  <view class="section">
+    <view class="section-title mb-4">
+      <text class="title-3">快捷入口</text>
+    </view>
+    <view class="grid grid-2">
+      <view 
+        wx:for="{{quickActions}}" 
+        wx:key="id"
+        class="feature-card card-hover fade-in"
+        style="animation-delay: {{index * 0.1}}s"
+        data-url="{{item.url}}"
+        bindtap="onQuickActionTap"
+      >
+        <view class="feature-icon" style="background: {{item.color}}15; color: {{item.color}};">
+          <text>{{item.icon}}</text>
+        </view>
+        <view class="feature-content">
+          <view class="feature-title">{{item.title}}</view>
+          <view class="feature-desc">{{item.desc}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 热门动态 -->
+  <view wx:if="{{hotPosts.length > 0}}" class="section">
+    <view class="section-title mb-4 flex items-center justify-between">
+      <text class="title-3">热门动态</text>
+      <text class="text-sm text-secondary" bindtap="onQuickActionTap" data-url="/pages/message-wall/index">查看更多 ›</text>
+    </view>
+    
+    <view class="posts-list">
+      <view 
+        wx:for="{{hotPosts}}" 
+        wx:key="id"
+        class="post-item card card-hover mb-3 fade-in"
+        style="animation-delay: {{index * 0.1 + 0.3}}s"
+        data-id="{{item.id}}"
+        bindtap="onHotPostTap"
+      >
+        <view class="card-body">
+          <view class="post-content">
+            <text class="text-base">{{item._content}}</text>
+          </view>
+          <view class="post-meta flex items-center justify-between mt-3">
+            <view class="flex items-center">
+              <text class="text-xs text-tertiary">{{item._createdAt}}</text>
+            </view>
+            <view class="post-stats flex items-center">
+              <view class="flex items-center mr-3">
+                <text class="text-xs mr-1">❤️</text>
+                <text class="text-xs text-secondary">{{item.likeCount || 0}}</text>
+              </view>
+              <text class="text-xs text-tertiary">›</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部空间 -->
+  <view class="safe-area"></view>
+</view>
+
+<!-- 加载状态 -->
+<view wx:if="{{isLoading}}" class="loading-overlay">
+  <view class="loading-content glass">
+    <view class="loading-spinner"></view>
+    <text class="text-sm text-secondary mt-3">加载中...</text>
+  </view>
+</view>
+
+<!-- 下拉刷新指示器 -->
+<view wx:if="{{refreshing}}" class="refresh-indicator">
+  <view class="loading-spinner"></view>
+</view>

@@ -1,33 +1,85 @@
 {
   "pages": [
-    "pages/auth/index", 
-    "pages/auth/password-login/index",
-    "pages/auth/register/index",
-    "pages/dev-settings/index",
-    "pages/index/index",
-    "pages/daily/index",
-    "pages/daily/favorites/index",
-    "pages/wall/index",
-    "pages/wall/create",
+    "pages/home/index",
+    "pages/assessments/index",
+    "pages/assessments/detail",
+    "pages/assessments/result", 
+    "pages/assessments/history",
+    "pages/message-wall/index",
+    "pages/message-wall/create",
+    "pages/message-wall/detail",
     "pages/messages/index",
+    "pages/messages/chat",
     "pages/profile/index",
-    "pages/confirm-login/index",
-    "pages/test-login/index",
-    "pages/privacy/index"
+    "pages/profile/edit",
+    "pages/auth/login",
+    "pages/auth/bind",
+    "pages/scan/index",
+    "pages/settings/index",
+    "pages/about/index"
   ],
+  "tabBar": {
+    "color": "#8e8e93",
+    "selectedColor": "#007AFF",
+    "backgroundColor": "#fafafa",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "首页",
+        "iconPath": "assets/tab/home.png",
+        "selectedIconPath": "assets/tab/home-active.png"
+      },
+      {
+        "pagePath": "pages/assessments/index", 
+        "text": "测评",
+        "iconPath": "assets/tab/assessment.png",
+        "selectedIconPath": "assets/tab/assessment-active.png"
+      },
+      {
+        "pagePath": "pages/message-wall/index",
+        "text": "心情墙",
+        "iconPath": "assets/tab/wall.png",
+        "selectedIconPath": "assets/tab/wall-active.png"
+      },
+      {
+        "pagePath": "pages/messages/index",
+        "text": "消息",
+        "iconPath": "assets/tab/message.png",
+        "selectedIconPath": "assets/tab/message-active.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "assets/tab/profile.png",
+        "selectedIconPath": "assets/tab/profile-active.png"
+      }
+    ]
+  },
   "window": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "Weixin",
-    "navigationBarBackgroundColor": "#ffffff"
+    "navigationBarTitleText": "kimochi心晴",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f7f8fa",
+    "enablePullDownRefresh": true,
+    "onReachBottomDistance": 50
   },
   "permission": {
     "scope.userLocation": {
-      "desc": "用于天气服务与发布位置"
+      "desc": "用于获取天气信息和位置服务"
+    },
+    "scope.camera": {
+      "desc": "用于扫码功能"
+    },
+    "scope.album": {
+      "desc": "用于上传图片和个人头像"
     }
   },
-  "requiredPrivateInfos": ["getLocation", "chooseLocation"],
+  "requiredPrivateInfos": ["getLocation", "chooseLocation", "chooseMedia"],
   "style": "v2",
   "componentFramework": "glass-easel",
   "sitemapLocation": "sitemap.json",
-  "lazyCodeLoading": "requiredComponents"
+  "lazyCodeLoading": "requiredComponents",
+  "darkmode": true,
+  "themeLocation": "theme.json"
 }

@@ -1,0 +1,186 @@
+<!--pages/message-wall/index.wxml-->
+<view class="container">
+  <!-- 筛选器 -->
+  <view class="filters-section">
+    <scroll-view class="filters-scroll" scroll-x>
+      <view class="filters-list">
+        <view 
+          wx:for="{{filters}}" 
+          wx:key="id"
+          class="filter-item {{filterType === item.id ? 'active' : ''}}"
+          data-filter="{{item.id}}"
+          bindtap="onFilterTap"
+        >
+          <text class="filter-icon">{{item.icon}}</text>
+          <text class="filter-name">{{item.name}}</text>
+        </view>
+      </view>
+    </scroll-view>
+    
+    <!-- 搜索按钮 -->
+    <view class="search-btn" bindtap="onSearchTap">
+      <text class="search-icon">🔍</text>
+    </view>
+  </view>
+
+  <!-- 动态列表 -->
+  <scroll-view 
+    class="posts-scroll"
+    scroll-y 
+    refresher-enabled="{{true}}"
+    refresher-triggered="{{isRefreshing}}"
+    bindrefresherrefresh="onPullDownRefresh"
+    bindscroll="onScroll"
+    enhanced="{{true}}"
+    bounces="{{true}}"
+    show-scrollbar="{{false}}"
+  >
+    <view class="posts-list">
+      <!-- 加载状态 -->
+      <view wx:if="{{isLoading && posts.length === 0}}" class="loading-section">
+        <view class="loading-spinner"></view>
+        <text class="loading-text">加载中...</text>
+      </view>
+
+      <!-- 空状态 -->
+      <view wx:elif="{{!isLoading && posts.length === 0}}" class="empty-section">
+        <view class="empty-icon">💭</view>
+        <view class="empty-title">暂无动态</view>
+        <view class="empty-desc">成为第一个分享心情的人</view>
+        <button wx:if="{{isLoggedIn}}" class="empty-action-btn" bindtap="onCreateTap">
+          发布动态
+        </button>
+      </view>
+
+      <!-- 动态列表 -->
+      <view wx:else class="posts-container">
+        <view 
+          wx:for="{{posts}}" 
+          wx:key="id"
+          class="post-card card card-hover fade-in"
+          style="animation-delay: {{index * 0.05}}s"
+          data-post="{{item}}"
+          data-index="{{index}}"
+          bindtap="onPostTap"
+        >
+          <view class="card-body">
+            <!-- 用户信息 -->
+            <view class="post-header">
+              <view 
+                class="user-info"
+                data-user-id="{{item.authorId}}"
+                bindtap="onUserTap"
+              >
+                <image 
+                  class="user-avatar avatar avatar-md"
+                  src="{{item.author.avatar || '/assets/default/avatar.png'}}"
+                  mode="aspectFill"
+                />
+                <view class="user-details">
+                  <view class="user-name">{{item.author.name}}</view>
+                  <view class="post-time text-tertiary">{{item._createdAt}}</view>
+                </view>
+              </view>
+              
+              <!-- 更多操作 -->
+              <view 
+                class="more-btn"
+                data-post="{{item}}"
+                data-index="{{index}}"
+                bindtap="onMoreTap"
+              >
+                <text class="more-icon">⋯</text>
+              </view>
+            </view>
+
+            <!-- 动态内容 -->
+            <view class="post-content">
+              <rich-text class="content-text" nodes="{{item._content}}"></rich-text>
+            </view>
+
+            <!-- 图片 -->
+            <view wx:if="{{item._images.length > 0}}" class="post-images">
+              <view class="images-grid images-grid-{{item._images.length > 4 ? 'many' : item._images.length}}">
+                <image 
+                  wx:for="{{item._images}}" 
+                  wx:key="index"
+                  wx:for-item="imageUrl"
+                  wx:for-index="imageIndex"
+                  class="post-image"
+                  src="{{imageUrl}}"
+                  mode="aspectFill"
+                  data-images="{{item._images}}"
+                  data-current="{{imageUrl}}"
+                  bindtap="onImageTap"
+                />
+              </view>
+            </view>
+
+            <!-- 操作栏 -->
+            <view class="post-actions">
+              <view class="action-group">
+                <view 
+                  class="action-btn like-btn {{item._isLiked ? 'liked' : ''}}"
+                  data-post="{{item}}"
+                  data-index="{{index}}"
+                  bindtap="onLikeTap"
+                >
+                  <text class="action-icon">{{item._isLiked ? '❤️' : '🤍'}}</text>
+                  <text class="action-text">{{item.likeCount || 0}}</text>
+                </view>
+                
+                <view 
+                  class="action-btn"
+                  data-post="{{item}}"
+                  bindtap="onCommentTap"
+                >
+                  <text class="action-icon">💬</text>
+                  <text class="action-text">{{item.commentCount || 0}}</text>
+                </view>
+                
+                <view 
+                  class="action-btn"
+                  data-post="{{item}}"
+                  bindtap="onShareTap"
+                >
+                  <text class="action-icon">📤</text>
+                  <text class="action-text">分享</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 加载更多 -->
+        <view wx:if="{{hasMore && !isLoading}}" class="load-more">
+          <view class="loading-spinner"></view>
+          <text class="loading-text">加载更多...</text>
+        </view>
+        
+        <!-- 没有更多 -->
+        <view wx:elif="{{!hasMore && posts.length > 0}}" class="no-more">
+          <text class="no-more-text">没有更多动态了</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 未登录提示 -->
+  <view wx:if="{{!isLoggedIn}}" class="login-tip glass">
+    <view class="tip-content">
+      <text class="tip-text">登录后可以点赞、评论和发布动态</text>
+      <button class="tip-btn" bindtap="showLoginPrompt">立即登录</button>
+    </view>
+  </view>
+
+  <!-- 悬浮创建按钮 -->
+  <view wx:if="{{isLoggedIn && showCreateBtn}}" class="create-fab" bindtap="onCreateTap">
+    <view class="fab-icon">✏️</view>
+  </view>
+</view>
+
+<!-- 下拉刷新提示 -->
+<view wx:if="{{isRefreshing}}" class="refresh-indicator">
+  <view class="loading-spinner"></view>
+  <text class="refresh-text">刷新中...</text>
+</view>

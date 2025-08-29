@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "心理测评",
+  "navigationBarTextStyle": "black", 
+  "navigationBarBackgroundColor": "#ffffff",
+  "backgroundColor": "#f7f8fa",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 50,
+  "backgroundTextStyle": "dark",
+  "usingComponents": {}
+}

@@ -1,9 +1,10 @@
 {
-  "navigationBarTitleText": "我的",
+  "navigationBarTitleText": "kimochi心晴",
   "navigationBarTextStyle": "black",
-  "navigationBarBackgroundColor": "#ffffff", 
+  "navigationBarBackgroundColor": "#ffffff",
   "backgroundColor": "#f7f8fa",
   "enablePullDownRefresh": true,
+  "onReachBottomDistance": 50,
   "backgroundTextStyle": "dark",
   "usingComponents": {}
 }

@@ -1,7 +1,29 @@
 {
-  "desc": "关于本文件的更多信息，请参考文档 https://developers.weixin.qq.com/miniprogram/dev/framework/sitemap.html",
-  "rules": [{
-  "action": "allow",
-  "page": "*"
-  }]
+  "desc": "kimochi心晴小程序站点地图配置",
+  "rules": [
+    {
+      "action": "allow",
+      "page": "pages/home/index"
+    },
+    {
+      "action": "allow", 
+      "page": "pages/assessments/index"
+    },
+    {
+      "action": "allow",
+      "page": "pages/message-wall/index"
+    },
+    {
+      "action": "disallow",
+      "page": "pages/auth/*"
+    },
+    {
+      "action": "disallow", 
+      "page": "pages/messages/*"
+    },
+    {
+      "action": "disallow",
+      "page": "pages/profile/*"
+    }
+  ]
 }

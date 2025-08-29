@@ -1,0 +1,513 @@
+/* pages/profile/index.wxss */
+
+.container {
+  background: var(--background-primary);
+  min-height: 100vh;
+  padding: 32rpx;
+}
+
+/* 用户信息区域 */
+.profile-header {
+  margin-bottom: 48rpx;
+}
+
+.user-profile,
+.login-profile {
+  display: flex;
+  align-items: center;
+  padding: 40rpx 32rpx;
+  border-radius: var(--radius-xl);
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, var(--background-secondary), var(--background-tertiary)30);
+  border: 1rpx solid var(--border-color);
+}
+
+.user-profile:active,
+.login-profile:active {
+  transform: scale(0.98);
+}
+
+/* 用户头像区域 */
+.user-avatar-section {
+  position: relative;
+  margin-right: 32rpx;
+}
+
+.user-avatar {
+  display: block;
+}
+
+.edit-avatar-hint {
+  position: absolute;
+  bottom: -8rpx;
+  right: -8rpx;
+  width: 48rpx;
+  height: 48rpx;
+  background: var(--primary-color);
+  border: 4rpx solid var(--background-secondary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-icon {
+  font-size: 24rpx;
+}
+
+/* 用户信息 */
+.user-info {
+  flex: 1;
+}
+
+.user-name {
+  margin-bottom: 8rpx;
+}
+
+.user-email {
+  margin-bottom: 12rpx;
+}
+
+.user-status {
+  display: flex;
+  align-items: center;
+}
+
+.status-badge {
+  padding: 8rpx 16rpx;
+  border-radius: var(--radius-medium);
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.status-badge.admin {
+  background: var(--warning-color)20;
+  color: var(--warning-color);
+}
+
+.status-badge.user {
+  background: var(--primary-color)20;
+  color: var(--primary-color);
+}
+
+.profile-arrow,
+.login-arrow {
+  font-size: 48rpx;
+  color: var(--text-tertiary);
+  margin-left: 16rpx;
+}
+
+/* 未登录状态 */
+.login-avatar {
+  width: 160rpx;
+  height: 160rpx;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 32rpx;
+}
+
+.login-avatar-icon {
+  font-size: 80rpx;
+  color: white;
+}
+
+.login-info {
+  flex: 1;
+}
+
+.login-title {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8rpx;
+}
+
+.login-subtitle {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+}
+
+/* 统计数据 */
+.stats-section {
+  margin-bottom: 48rpx;
+}
+
+.stats-grid {
+  display: flex;
+  align-items: center;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 16rpx;
+  transition: all 0.2s ease;
+  border-radius: var(--radius-medium);
+}
+
+.stat-item:active {
+  background: var(--background-tertiary);
+  transform: scale(0.95);
+}
+
+.stat-value {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+  display: block;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  margin-top: 8rpx;
+  display: block;
+}
+
+.stat-divider {
+  width: 1rpx;
+  height: 80rpx;
+  background: var(--border-color);
+}
+
+/* 最近活动 */
+.activities-section {
+  margin-bottom: 48rpx;
+}
+
+.section-header {
+  margin-bottom: 24rpx;
+}
+
+.section-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.activities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.activity-item {
+  transition: all 0.2s ease;
+}
+
+.activity-content {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 24rpx 32rpx;
+}
+
+.activity-icon {
+  width: 80rpx;
+  height: 80rpx;
+  background: var(--background-tertiary);
+  border-radius: var(--radius-large);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+}
+
+.activity-info {
+  flex: 1;
+}
+
+.activity-title {
+  font-size: 32rpx;
+  color: var(--text-primary);
+  margin-bottom: 6rpx;
+}
+
+.activity-time {
+  font-size: 24rpx;
+  color: var(--text-tertiary);
+}
+
+/* 功能菜单 */
+.menu-section {
+  margin-bottom: 48rpx;
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.menu-item {
+  transition: all 0.2s ease;
+}
+
+.menu-content {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 32rpx;
+}
+
+.menu-icon {
+  width: 80rpx;
+  height: 80rpx;
+  background: var(--background-tertiary);
+  border-radius: var(--radius-large);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  color: var(--text-secondary);
+}
+
+.menu-info {
+  flex: 1;
+}
+
+.menu-title {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 6rpx;
+}
+
+.menu-desc {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+}
+
+.menu-arrow {
+  font-size: 48rpx;
+  color: var(--text-tertiary);
+}
+
+/* 操作按钮区域 */
+.actions-section {
+  margin-bottom: 48rpx;
+}
+
+.action-buttons,
+.guest-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.action-btn {
+  width: 100%;
+  padding: 32rpx;
+  border: none;
+  border-radius: var(--radius-large);
+  font-size: 32rpx;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.action-btn:active {
+  transform: scale(0.98);
+}
+
+.action-btn.primary {
+  background: var(--primary-color);
+  color: white;
+  box-shadow: 0 8rpx 32rpx rgba(0, 122, 255, 0.3);
+}
+
+.action-btn.secondary {
+  background: var(--background-secondary);
+  color: var(--text-primary);
+  border: 2rpx solid var(--border-color);
+}
+
+.action-btn.secondary:active {
+  background: var(--background-tertiary);
+}
+
+.action-btn.danger {
+  background: var(--error-color)10;
+  color: var(--error-color);
+  border: 2rpx solid var(--error-color)30;
+}
+
+.action-btn.danger:active {
+  background: var(--error-color)20;
+}
+
+/* 版本信息 */
+.version-section {
+  text-align: center;
+  padding: 32rpx;
+  border-top: 1rpx solid var(--border-color);
+}
+
+.version-text {
+  font-size: 24rpx;
+  color: var(--text-tertiary);
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.version-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+}
+
+.version-link {
+  font-size: 24rpx;
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+.version-separator {
+  font-size: 24rpx;
+  color: var(--text-tertiary);
+}
+
+/* 加载状态 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+}
+
+.loading-content {
+  padding: 48rpx 64rpx;
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.loading-text {
+  margin-top: 24rpx;
+  color: var(--text-secondary);
+  font-size: 28rpx;
+}
+
+/* 响应式适配 */
+@media screen and (max-width: 480rpx) {
+  .container {
+    padding: 24rpx;
+  }
+  
+  .user-profile,
+  .login-profile {
+    padding: 32rpx 24rpx;
+  }
+  
+  .user-avatar-section {
+    margin-right: 24rpx;
+  }
+  
+  .stats-grid .stat-item {
+    padding: 20rpx 12rpx;
+  }
+  
+  .stat-value {
+    font-size: 40rpx;
+  }
+  
+  .stat-label {
+    font-size: 22rpx;
+  }
+  
+  .menu-content {
+    padding: 28rpx 24rpx;
+    gap: 20rpx;
+  }
+  
+  .menu-icon,
+  .activity-icon {
+    width: 64rpx;
+    height: 64rpx;
+    font-size: 32rpx;
+  }
+  
+  .menu-title {
+    font-size: 30rpx;
+  }
+  
+  .menu-desc {
+    font-size: 24rpx;
+  }
+  
+  .action-btn {
+    padding: 28rpx;
+    font-size: 30rpx;
+  }
+}
+
+/* 动画效果 */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20rpx);
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 长按反馈 */
+.menu-item:active,
+.activity-item:active {
+  transform: scale(0.98);
+}
+
+.user-profile:active {
+  transform: scale(0.99);
+}
+
+/* 特殊状态 */
+.stat-item:active {
+  background: var(--primary-color)10;
+}
+
+/* 头像编辑提示动画 */
+.edit-avatar-hint {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
+
+/* 加载动画 */
+.loading-spinner {
+  width: 48rpx;
+  height: 48rpx;
+  border: 4rpx solid var(--border-color);
+  border-top: 4rpx solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

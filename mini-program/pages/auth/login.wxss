@@ -1,0 +1,411 @@
+/* pages/auth/login.wxss */
+
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f7f8fa 0%, #e3f2fd 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 32rpx 32rpx;
+}
+
+/* Logo 区域 */
+.logo-section {
+  text-align: center;
+  margin-bottom: 80rpx;
+}
+
+.logo {
+  margin-bottom: 24rpx;
+}
+
+.logo-text {
+  font-size: 120rpx;
+  line-height: 1;
+  display: block;
+}
+
+.app-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.app-title .subtitle {
+  margin-top: 8rpx;
+  opacity: 0.8;
+}
+
+/* 登录内容 */
+.login-content {
+  width: 100%;
+  max-width: 600rpx;
+  flex: 1;
+}
+
+/* 微信登录区域 */
+.wechat-login-section {
+  background: var(--background-secondary);
+  border-radius: var(--radius-xl);
+  padding: 48rpx 40rpx;
+  box-shadow: var(--shadow-medium);
+  border: 1rpx solid var(--border-color);
+}
+
+.welcome-text {
+  text-align: center;
+  margin-bottom: 48rpx;
+}
+
+.welcome-text .desc {
+  margin-top: 12rpx;
+  line-height: 1.5;
+}
+
+.wechat-login-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #1aad19 0%, #2dc025 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-large);
+  padding: 32rpx 24rpx;
+  font-size: 36rpx;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 8rpx 32rpx rgba(29, 173, 25, 0.3);
+}
+
+.wechat-login-btn:active {
+  transform: scale(0.98);
+}
+
+.wechat-login-btn.loading {
+  opacity: 0.8;
+}
+
+.btn-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+}
+
+.wechat-icon {
+  font-size: 44rpx;
+}
+
+.btn-text {
+  font-size: inherit;
+}
+
+/* 其他选项 */
+.other-options {
+  margin-top: 32rpx;
+  text-align: center;
+}
+
+.option-item {
+  padding: 16rpx;
+}
+
+.option-text {
+  color: var(--primary-color);
+  font-size: 28rpx;
+  text-decoration: underline;
+}
+
+/* 绑定区域 */
+.bind-section {
+  background: var(--background-secondary);
+  border-radius: var(--radius-xl);
+  padding: 48rpx 40rpx;
+  box-shadow: var(--shadow-medium);
+  border: 1rpx solid var(--border-color);
+}
+
+.bind-header {
+  text-align: center;
+  margin-bottom: 48rpx;
+}
+
+.user-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.user-avatar {
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: 50%;
+  margin-bottom: 16rpx;
+  box-shadow: var(--shadow-light);
+}
+
+.user-name {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.bind-title {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12rpx;
+  display: block;
+}
+
+.bind-desc {
+  line-height: 1.5;
+}
+
+/* 绑定表单 */
+.bind-form {
+  margin-bottom: 32rpx;
+}
+
+.form-group {
+  margin-bottom: 32rpx;
+}
+
+.form-label {
+  margin-bottom: 12rpx;
+}
+
+.form-label text {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--background-tertiary);
+  border: 2rpx solid var(--border-color);
+  border-radius: var(--radius-large);
+  transition: border-color 0.2s ease;
+}
+
+.input-wrapper:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 6rpx rgba(0, 122, 255, 0.1);
+}
+
+.form-input {
+  flex: 1;
+  padding: 24rpx 32rpx;
+  font-size: 32rpx;
+  color: var(--text-primary);
+  background: transparent;
+  border: none;
+}
+
+.input-action {
+  padding: 24rpx;
+  color: var(--text-secondary);
+}
+
+.action-icon {
+  font-size: 32rpx;
+}
+
+.forgot-password {
+  text-align: right;
+  margin-top: 16rpx;
+}
+
+.link-text {
+  color: var(--primary-color);
+  font-size: 28rpx;
+  text-decoration: underline;
+}
+
+/* 绑定按钮 */
+.bind-btn {
+  width: 100%;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--radius-large);
+  padding: 32rpx 24rpx;
+  font-size: 36rpx;
+  font-weight: 600;
+  position: relative;
+  transition: all 0.2s ease;
+  box-shadow: 0 8rpx 32rpx rgba(0, 122, 255, 0.3);
+}
+
+.bind-btn:active {
+  transform: scale(0.98);
+}
+
+.bind-btn.loading {
+  opacity: 0.8;
+}
+
+/* 底部链接 */
+.footer-links {
+  margin-top: 48rpx;
+  text-align: center;
+}
+
+.link-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16rpx;
+}
+
+.footer-link {
+  color: var(--text-secondary);
+  font-size: 24rpx;
+  text-decoration: underline;
+}
+
+.separator {
+  color: var(--text-tertiary);
+  margin: 0 16rpx;
+  font-size: 24rpx;
+}
+
+.help-link {
+  margin-top: 16rpx;
+}
+
+.help-text {
+  color: var(--primary-color);
+  font-size: 28rpx;
+  text-decoration: underline;
+}
+
+/* 取消区域 */
+.cancel-section {
+  width: 100%;
+  max-width: 600rpx;
+  margin-top: 32rpx;
+}
+
+.cancel-btn {
+  width: 100%;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 2rpx solid var(--border-color);
+  border-radius: var(--radius-large);
+  padding: 24rpx;
+  font-size: 32rpx;
+}
+
+.cancel-btn:active {
+  transform: scale(0.98);
+  background: var(--background-tertiary);
+}
+
+/* 加载遮罩 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+.loading-content {
+  padding: 48rpx 64rpx;
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.loading-text {
+  margin-top: 24rpx;
+  color: var(--text-secondary);
+  font-size: 28rpx;
+}
+
+/* 加载动画 */
+.loading-spinner {
+  width: 48rpx;
+  height: 48rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
+  border-top: 4rpx solid #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  position: absolute;
+  right: 32rpx;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.loading-content .loading-spinner {
+  position: static;
+  transform: none;
+  border: 4rpx solid var(--border-color);
+  border-top: 4rpx solid var(--primary-color);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 响应式适配 */
+@media screen and (max-width: 480rpx) {
+  .container {
+    padding: 60rpx 24rpx 24rpx;
+  }
+  
+  .wechat-login-section,
+  .bind-section {
+    padding: 40rpx 32rpx;
+  }
+  
+  .logo-text {
+    font-size: 100rpx;
+  }
+  
+  .wechat-login-btn,
+  .bind-btn {
+    padding: 28rpx 20rpx;
+    font-size: 32rpx;
+  }
+}
+
+/* 焦点状态增强 */
+.form-input:focus {
+  outline: none;
+}
+
+/* 禁用状态 */
+button[disabled] {
+  opacity: 0.6;
+  transform: none !important;
+}
+
+/* 特殊动画 */
+.bind-section,
+.wechat-login-section {
+  animation: slideUp 0.5s ease forwards;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(60rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,161 @@
+<!--pages/assessments/index.wxml-->
+<view class="container">
+  <!-- 头部 -->
+  <view class="header-section">
+    <view class="header-title">
+      <text class="title-2">心理测评</text>
+      <text class="subtitle">了解内在的自己</text>
+    </view>
+    
+    <view class="header-actions">
+      <view class="action-btn" bindtap="onSearchToggle">
+        <text class="icon">🔍</text>
+      </view>
+      <view class="action-btn" bindtap="onQuickFilter">
+        <text class="icon">⚙️</text>
+      </view>
+      <view wx:if="{{isLoggedIn}}" class="action-btn" bindtap="onHistoryTap">
+        <text class="icon">📊</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索框 -->
+  <view wx:if="{{showSearch}}" class="search-section fade-in">
+    <view class="search-box">
+      <view class="search-input-wrapper">
+        <text class="search-icon">🔍</text>
+        <input 
+          class="search-input"
+          placeholder="搜索测评内容..."
+          value="{{searchText}}"
+          bindinput="onSearchInput"
+        />
+        <view wx:if="{{searchText}}" class="clear-btn" bindtap="onSearchClear">
+          <text>×</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分类标签 -->
+  <view class="categories-section">
+    <scroll-view class="categories-scroll" scroll-x>
+      <view class="categories-list">
+        <view 
+          class="category-tag {{activeCategory === 'all' ? 'active' : ''}}"
+          data-category="all"
+          bindtap="onCategoryTap"
+        >
+          <text>全部</text>
+        </view>
+        <view 
+          wx:for="{{categories}}" 
+          wx:key="id"
+          class="category-tag {{activeCategory === item.id ? 'active' : ''}}"
+          style="--tag-color: {{item.color}}"
+          data-category="{{item.id}}"
+          bindtap="onCategoryTap"
+        >
+          <text class="category-icon">{{item.icon}}</text>
+          <text class="category-name">{{item.name}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 测评列表 -->
+  <view class="assessments-section">
+    <view wx:if="{{!isLoading && filteredAssessments.length === 0}}" class="empty-state">
+      <view class="empty-icon">📝</view>
+      <view class="empty-text">暂无相关测评</view>
+      <view class="empty-desc">试试调整筛选条件</view>
+    </view>
+
+    <view wx:else class="assessments-list">
+      <view 
+        wx:for="{{filteredAssessments}}" 
+        wx:key="id"
+        class="assessment-card card card-hover fade-in"
+        style="animation-delay: {{index * 0.1}}s"
+        data-assessment="{{item}}"
+        bindtap="onAssessmentTap"
+        bindlongpress="onAssessmentDetail"
+      >
+        <!-- 完成状态标识 -->
+        <view wx:if="{{item._isCompleted}}" class="completed-badge">
+          <text>已完成</text>
+        </view>
+
+        <view class="card-body">
+          <!-- 标题区域 -->
+          <view class="assessment-header">
+            <view class="assessment-title">
+              <text class="title-3">{{item.title}}</text>
+            </view>
+            <view class="assessment-meta">
+              <view class="meta-item">
+                <text class="meta-icon">⏱️</text>
+                <text class="meta-text">{{item._estimatedTime}}</text>
+              </view>
+              <view class="meta-item">
+                <text 
+                  class="difficulty-tag" 
+                  style="color: {{item._difficulty.color}}; background: {{item._difficulty.color}}20"
+                >
+                  {{item._difficulty.text}}
+                </text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 描述 -->
+          <view class="assessment-description">
+            <text class="text-secondary">{{item.description}}</text>
+          </view>
+
+          <!-- 底部信息 -->
+          <view class="assessment-footer">
+            <view class="assessment-stats">
+              <view class="stat-item">
+                <text class="stat-value">{{item.questionCount || 0}}</text>
+                <text class="stat-label">题目</text>
+              </view>
+              <view class="stat-item">
+                <text class="stat-value">{{item.completedCount || 0}}</text>
+                <text class="stat-label">完成</text>
+              </view>
+            </view>
+            
+            <view class="assessment-action">
+              <view class="start-btn {{item._isCompleted ? 'retake' : 'new'}}">
+                <text>{{item._isCompleted ? '重新测试' : '开始测试'}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 登录提示 -->
+  <view wx:if="{{!isLoggedIn}}" class="login-prompt card mt-6">
+    <view class="card-body text-center">
+      <view class="prompt-icon">🔐</view>
+      <view class="prompt-title">登录后体验完整功能</view>
+      <view class="prompt-desc">保存测评结果，查看历史记录</view>
+      <button class="btn btn-primary btn-small mt-3" bindtap="onLoginTap">立即登录</button>
+    </view>
+  </view>
+
+  <!-- 底部安全区域 -->
+  <view class="safe-area"></view>
+</view>
+
+<!-- 加载状态 -->
+<view wx:if="{{isLoading}}" class="loading-overlay">
+  <view class="loading-content glass">
+    <view class="loading-spinner"></view>
+    <text class="text-sm text-secondary mt-3">加载测评中...</text>
+  </view>
+</view>
